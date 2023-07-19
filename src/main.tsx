@@ -10,7 +10,6 @@ import {
 import "./index.css";
 import RawMaterialPage from "./pages/RawMaterial/index.js";
 import ProductionPage from "./pages/Production/index.js";
-import OrderPage from "./pages/Order/index.js";
 import CustomerPage from "./pages/Customer/index.js";
 import SupplierPage from "./pages/Supplier/index.js";
 import UserPage from "./pages/User/index.js";

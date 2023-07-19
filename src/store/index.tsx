@@ -1,8 +1,19 @@
-import React, { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState } from "react";
+
+export interface GlobalStateType {
+    // Define your global state variables here
+    // For example:
+    // isLoggedIn: boolean;
+    // user: User | null;
+    // cart: CartItem[];
+    sideBarContext: boolean;
+}
 
 // Create a new context for the global state
-const GlobalStateContext: null | any = createContext(null);
-
+const GlobalStateContext = createContext<{
+    globalState: GlobalStateType;
+    setGlobalState: React.Dispatch<React.SetStateAction<GlobalStateType>>;
+} | null>(null);
 // Custom hook to access the global state
 export const useGlobalState = () => {
     const state = useContext(GlobalStateContext);
@@ -15,12 +26,7 @@ export const useGlobalState = () => {
 };
 
 export const GlobalStateProvider = ({ children }: any) => {
-    const [globalState, setGlobalState] = useState({
-        // Add your global state variables here
-        // For example:
-        // isLoggedIn: false,
-        // user: null,
-        // cart: [],
+    const [globalState, setGlobalState] = useState<GlobalStateType>({
         sideBarContext: false,
     });
 

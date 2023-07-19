@@ -2,7 +2,7 @@ import { Space } from "antd";
 import InvDrawer from "../../components/InvDrawer";
 import InvTable, { DataType } from "../../components/InvTable";
 
-type Props = {};
+// type Props = {};
 const data: DataType[] = [
     {
         key: "1",
@@ -30,7 +30,7 @@ const data: DataType[] = [
     },
 ];
 
-const BillPage = (props: Props) => {
+const BillPage = () => {
     return (
         <>
             <Space

@@ -32,6 +32,7 @@ const data: DataType[] = [
 ];
 
 const ProductionPage = (props: Props) => {
+    console.log(props);
     return (
         <>
             <Space

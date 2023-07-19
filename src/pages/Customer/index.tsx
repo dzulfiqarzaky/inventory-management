@@ -1,8 +1,8 @@
 import InvTableEditComponent from "../../components/InvTableEdit";
 
-type Props = {};
+// type Props = {};
 
-const CustomerPage = (props: Props) => {
+const CustomerPage = () => {
     return (
         <>
             <h1>Customer Page</h1>

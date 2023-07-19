@@ -31,6 +31,7 @@ const data: DataType[] = [
 ];
 
 const RawMaterialTransactionPage = (props: Props) => {
+    console.log(props);
     return (
         <>
             <Space

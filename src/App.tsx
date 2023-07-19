@@ -9,7 +9,6 @@ import { Breadcrumb, Layout, Skeleton, Space, theme } from "antd";
 import InvStatistics from "./components/statistics";
 import InvSidebar from "./components/Sidebar";
 import { Outlet } from "react-router";
-import useSidebar from "./components/Sidebar/useSidebar";
 import { useGlobalState } from "./store";
 const { Header, Content, Footer } = Layout;
 

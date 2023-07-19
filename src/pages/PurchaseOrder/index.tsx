@@ -31,6 +31,7 @@ const data: DataType[] = [
 ];
 
 const PurchaseOrderPage = (props: Props) => {
+    console.log(props);
     return (
         <>
             <Space

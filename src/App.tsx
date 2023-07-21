@@ -10,6 +10,8 @@ import InvStatistics from "./components/statistics";
 import InvSidebar from "./components/Sidebar";
 import { Outlet } from "react-router";
 import { useGlobalState } from "./store";
+import { RequireAuth, RequireNoAuth } from "./lib/Auth";
+import LoginPage from "./pages/Login/index";
 const { Header, Content, Footer } = Layout;
 
 export type MenuItem = {
@@ -113,44 +115,52 @@ const App: React.FC = () => {
         token: { colorBgContainer },
     } = theme.useToken();
     const { globalState } = useGlobalState();
-    console.log(globalState, 1111);
     return (
         <Layout style={{ minHeight: "100vh", display: "flex" }}>
-            <InvSidebar items={SidebarData} />
-            <Layout
-                className="site-layout"
-                style={{
-                    marginLeft: globalState.sideBarContext ? 100 : 360,
-                    transition: "margin 0.2s ease-in",
-                }}
-            >
-                <Header style={{ padding: 0, background: colorBgContainer }} />
-                <Content style={{ margin: "0 16px" }}>
-                    <Breadcrumb style={{ margin: "16px 0" }}>
-                        <Breadcrumb.Item>Product</Breadcrumb.Item>
-                        <Breadcrumb.Item>List</Breadcrumb.Item>
-                    </Breadcrumb>
-                    <div
-                        style={{
-                            padding: 24,
-                            minHeight: 360,
-                            background: colorBgContainer,
-                        }}
-                    >
-                        <Skeleton loading={false}>
-                            <Space
-                                direction="vertical"
-                                size="large"
-                                style={{ display: "flex" }}
-                            >
-                                <InvStatistics />
-                                <Outlet />
-                            </Space>
-                        </Skeleton>
-                    </div>
-                </Content>
-                <Footer style={{ textAlign: "center" }}>Inventory app</Footer>
-            </Layout>
+            <RequireAuth>
+                <InvSidebar items={SidebarData} />
+                <Layout
+                    className="site-layout"
+                    style={{
+                        marginLeft: globalState.sideBarContext ? 100 : 360,
+                        transition: "margin 0.2s ease-in",
+                    }}
+                >
+                    <Header
+                        style={{ padding: 0, background: colorBgContainer }}
+                    />
+                    <Content style={{ margin: "0 16px" }}>
+                        <Breadcrumb style={{ margin: "16px 0" }}>
+                            <Breadcrumb.Item>Product</Breadcrumb.Item>
+                            <Breadcrumb.Item>List</Breadcrumb.Item>
+                        </Breadcrumb>
+                        <div
+                            style={{
+                                padding: 24,
+                                minHeight: 360,
+                                background: colorBgContainer,
+                            }}
+                        >
+                            <Skeleton loading={false}>
+                                <Space
+                                    direction="vertical"
+                                    size="large"
+                                    style={{ display: "flex" }}
+                                >
+                                    <InvStatistics />
+                                    <Outlet />
+                                </Space>
+                            </Skeleton>
+                        </div>
+                    </Content>
+                    <Footer style={{ textAlign: "center" }}>
+                        Inventory app
+                    </Footer>
+                </Layout>
+            </RequireAuth>
+            <RequireNoAuth>
+                <LoginPage />
+            </RequireNoAuth>
         </Layout>
     );
 };

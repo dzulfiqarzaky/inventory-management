@@ -21,8 +21,9 @@ import RawMaterialUsePage from "./pages/RawMaterialUsed/index.js";
 import RawMaterialTransactionPage from "./pages/RawMaterialTransaction/index.js";
 import PurchaseOrderPage from "./pages/PurchaseOrder/index.js";
 import { GlobalStateProvider } from "./store/index.js";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-// import { QueryClient, QueryClientProvider } from "react-query";
+const queryClient = new QueryClient();
 
 const getComponentPage = (componentName: any) => {
     switch (componentName) {
@@ -54,7 +55,6 @@ const getComponentPage = (componentName: any) => {
 const generateNestedRoutes = (children: any[]) => {
     return children.map((child) => {
         const ComponentPage = getComponentPage(child.label);
-        console.log(child.label, "<<<<label");
         return (
             <Route
                 key={child.label}
@@ -100,8 +100,8 @@ const router = createBrowserRouter(
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
     <React.StrictMode>
-        {/* <QueryClientProvider client={QueryClient}> */}
-        <RouterProvider router={router} />
-        {/* </QueryClientProvider> */}
+        <QueryClientProvider client={queryClient}>
+            <RouterProvider router={router} />
+        </QueryClientProvider>
     </React.StrictMode>
 );

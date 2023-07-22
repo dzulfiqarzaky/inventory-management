@@ -1,4 +1,5 @@
 import { createContext, useContext, useState } from "react";
+import { DataType } from "../components/InvTableEdit/InvTableEdit.interface";
 
 export interface GlobalStateType {
     // Define your global state variables here
@@ -6,6 +7,7 @@ export interface GlobalStateType {
     // isLoggedIn: boolean;
     // user: User | null;
     // cart: CartItem[];
+    tableEditContext: DataType[];
     sideBarContext: boolean;
 }
 
@@ -28,6 +30,7 @@ export const useGlobalState = () => {
 export const GlobalStateProvider = ({ children }: any) => {
     const [globalState, setGlobalState] = useState<GlobalStateType>({
         sideBarContext: false,
+        tableEditContext: [],
     });
 
     return (

@@ -1,29 +1,35 @@
 import { useState } from "react";
 import { DataType } from "./InvTableEdit.interface";
 import { AnyObject } from "antd/es/_util/type";
+import { useGlobalState } from "../../store";
 
 const useHandleEditTable = () => {
-    const [dataSource, setDataSource] = useState<DataType[]>([]);
+    const { globalState, setGlobalState } = useGlobalState();
 
     const [count, setCount] = useState(2);
 
     const handleDelete = (key: React.Key) => {
-        const newData = dataSource.filter((item) => item.key !== key);
-        setDataSource(newData);
+        const newData = globalState.tableEditContext.filter(
+            (item) => item.key !== key
+        );
+        setGlobalState({ ...globalState, tableEditContext: newData });
     };
 
     const handleAdd = () => {
         const newData: DataType = {
-            ...dataSource[0],
+            ...globalState.tableEditContext[0],
             key: count,
             newData: true,
         };
-        setDataSource([...dataSource, newData]);
+        setGlobalState({
+            ...globalState,
+            tableEditContext: [...globalState.tableEditContext, newData],
+        });
         setCount(count + 1);
     };
 
     const handleSave = (row: AnyObject) => {
-        const newData = [...dataSource];
+        const newData = [...globalState.tableEditContext];
         const index = newData.findIndex((item) => row.key === item.key);
         const item = newData[index];
         newData.splice(index, 1, {
@@ -33,30 +39,15 @@ const useHandleEditTable = () => {
             edited: true,
         });
 
-        setDataSource(newData);
-    };
-
-    const handleDatabaseSave = (row: AnyObject) => {
-        const newData = [...dataSource];
-        const index = newData.findIndex((item) => row.key === item.key);
-        const item = newData[index];
-        newData.splice(index, 1, {
-            ...item,
-            ...row,
-            newData: false,
-            edited: false,
-        });
-        setDataSource(newData);
-        console.log(newData, "<<<< anter ke db ini");
+        setGlobalState({ ...globalState, tableEditContext: newData });
     };
 
     return {
         handleAdd,
         handleDelete,
         handleSave,
-        dataSource,
-        setDataSource,
-        handleDatabaseSave,
+        dataSource: globalState,
+        setDataSource: setGlobalState,
     };
 };
 

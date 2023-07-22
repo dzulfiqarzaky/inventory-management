@@ -4,7 +4,7 @@ import { Navigate } from "react-router-dom";
 import { useState } from "react";
 import styled from "styled-components";
 import { Alert, Space } from "antd";
-import { useLogin } from "../../hooks/user/useLogin";
+import { useLogin } from "../../hooks/login/useLogin";
 
 export interface LoginFormData {
     label: string;
@@ -12,6 +12,7 @@ export interface LoginFormData {
     type: string;
     validation: { required: boolean };
 }
+
 export interface User {
     data: {
         access_token: string;

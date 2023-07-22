@@ -5,103 +5,29 @@ import InvEditableCell from "./InvCellEdit";
 import type { FormInstance } from "antd/es/form";
 import { ColumnTypes, DataType } from "./InvTableEdit.interface";
 import useHandleEditTable from "./useHandleTableEdit";
-import { AnyObject } from "antd/es/_util/type";
 
 export const EditableContext = React.createContext<FormInstance<any> | null>(
     null
 );
 
 const InvTableEditComponent: React.FC<{
-    addButtonLabel: string;
-}> = ({ addButtonLabel }: { addButtonLabel: string }) => {
-    const {
-        dataSource,
-        handleAdd,
-        handleSave,
-        handleDelete,
-        setDataSource,
-        handleDatabaseSave,
-    } = useHandleEditTable();
-
-    useEffect(() => {
-        setDataSource([
-            {
-                key: "0",
-                name: "Edward King 0",
-                age: "32",
-                supplier: "johny",
-                address: "London, Park Lane no. 0",
-            },
-            {
-                key: "1",
-                name: "Edward King 1",
-                supplier: "johny",
-                age: "32",
-                address: "London, Park Lane no. 1",
-            },
-        ]);
-    }, []);
-    const defaultColumns: (ColumnTypes[number] & {
+    columns: (ColumnTypes[number] & {
         editable?: boolean;
         dataIndex: string;
-    })[] = [
-        {
-            title: "name",
-            dataIndex: "name",
-            width: "30%",
-            editable: true,
-        },
-        {
-            title: "supplier",
-            dataIndex: "supplier",
-            editable: true,
-        },
-        {
-            title: "age",
-            dataIndex: "age",
-            editable: true,
-        },
-        {
-            title: "address",
-            dataIndex: "address",
-            editable: true,
-        },
-        {
-            title: "Action",
-            dataIndex: "Action",
-            render: (_, record: AnyObject) =>
-                dataSource.length >= 1 ? (
-                    <>
-                        <Space>
-                            {record.edited ? (
-                                <Popconfirm
-                                    title="Save into database?"
-                                    onConfirm={() => handleDatabaseSave(record)}
-                                >
-                                    <Button type="primary">
-                                        <a>Save</a>
-                                    </Button>
-                                </Popconfirm>
-                            ) : (
-                                <Button type="primary" disabled>
-                                    <a>Save</a>
-                                </Button>
-                            )}
-                            <Popconfirm
-                                title="Sure to delete?"
-                                onConfirm={() => handleDelete(record.key)}
-                            >
-                                <Button type="primary" danger>
-                                    <a>Delete</a>
-                                </Button>
-                            </Popconfirm>
-                        </Space>
-                    </>
-                ) : null,
-        },
-    ];
+    })[];
+    items: any;
+    addButtonLabel: string;
+}> = ({ columns, items, addButtonLabel }) => {
+    const { dataSource, handleAdd, handleSave, setDataSource } =
+        useHandleEditTable();
 
-    const columns = defaultColumns.map((col) => {
+    useEffect(() => {
+        if (items) {
+            setDataSource({ ...dataSource, tableEditContext: items });
+        }
+    }, [items]);
+
+    const columnsComponent = columns.map((col) => {
         if (!col.editable) {
             return col;
         }
@@ -139,8 +65,8 @@ const InvTableEditComponent: React.FC<{
                     record?.newData ? "editable-row" : "editable-row new-row"
                 }
                 bordered
-                dataSource={dataSource}
-                columns={columns as ColumnTypes}
+                dataSource={dataSource.tableEditContext}
+                columns={columnsComponent as ColumnTypes}
             />
         </div>
     );

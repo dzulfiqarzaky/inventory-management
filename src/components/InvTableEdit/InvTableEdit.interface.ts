@@ -1,11 +1,10 @@
 import { Table } from "antd";
 
 export interface DataType {
-    key: React.Key;
-    name: string;
-    age: string;
-    address: string;
-    supplier: string;
+    key?: React.Key;
+    username: string;
+    password?: string;
+    role: string;
     newData?: boolean;
     edited?: boolean;
 }

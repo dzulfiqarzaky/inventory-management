@@ -7,7 +7,6 @@ import { useGlobalState } from "../../store";
 
 const InvSidebar = ({ items }: { items: MenuItem[] }) => {
     const { globalState, setGlobalState } = useGlobalState();
-    console.log(globalState, setGlobalState);
     const { collapsed, setCollapsed } = useSidebar();
     return (
         <Sider

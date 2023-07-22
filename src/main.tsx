@@ -21,9 +21,25 @@ import RawMaterialUsePage from "./pages/RawMaterialUsed/index.js";
 import RawMaterialTransactionPage from "./pages/RawMaterialTransaction/index.js";
 import PurchaseOrderPage from "./pages/PurchaseOrder/index.js";
 import { GlobalStateProvider } from "./store/index.js";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+    QueryCache,
+    QueryClient,
+    QueryClientProvider,
+} from "@tanstack/react-query";
 
-const queryClient = new QueryClient();
+const queryCache = new QueryCache({});
+export const queryClient = new QueryClient({
+    defaultOptions: {
+        queries: {
+            refetchOnWindowFocus: false,
+            refetchOnMount: true,
+            cacheTime: 0,
+            staleTime: Infinity,
+            retry: 3,
+        },
+    },
+    queryCache,
+});
 
 const getComponentPage = (componentName: any) => {
     switch (componentName) {

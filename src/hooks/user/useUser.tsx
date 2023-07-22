@@ -1,12 +1,16 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import api from "../../lib/client";
+import { DataType } from "../../components/InvTableEdit/InvTableEdit.interface";
 
 export interface UserApiInterface {
-    user_id: string;
-    options: {};
+    user_id?: string;
+    options?: {};
+    query?: {
+        search?: string;
+    };
 }
 
-const fetchUsers = async ({ query = {} }) =>
+const fetchUsers = async ({ query = {} }: UserApiInterface) =>
     api(`/user`, {
         params: {
             search: "",
@@ -16,15 +20,15 @@ const fetchUsers = async ({ query = {} }) =>
             sortOrder: "desc",
             ...query,
         },
-    }).then((data) => data);
+    }).then((data) => data.data);
 
-const useUsers = ({ query = {}, options = {} } = {}) =>
+const useUsers = ({ query = {}, options = {} }: UserApiInterface) =>
     useQuery(["users", query], () => fetchUsers({ query }), {
         keepPreviousData: true,
         ...options,
     });
 
-const fetchUser = async ({ user_id }: { user_id: string }) =>
+const fetchUser = async ({ user_id }: UserApiInterface) =>
     api(`/user/${user_id}`).then((data) => data);
 
 const useUser = ({ user_id, options = {} }: UserApiInterface) =>
@@ -34,7 +38,7 @@ const useUser = ({ user_id, options = {} }: UserApiInterface) =>
 
 const useCreateUser = ({ options = {} }: UserApiInterface) => {
     return useMutation(
-        (newData) =>
+        (newData: DataType) =>
             api("/user", {
                 method: "POST",
                 data: newData,
@@ -45,7 +49,7 @@ const useCreateUser = ({ options = {} }: UserApiInterface) => {
 
 const useUpdateUser = ({ user_id, options = {} }: UserApiInterface) => {
     return useMutation(
-        (updates) =>
+        (updates: DataType) =>
             api(`/user/${user_id}`, {
                 method: "PUT",
                 data: updates,

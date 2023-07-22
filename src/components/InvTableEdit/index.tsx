@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Button, Popconfirm, Space, Table } from "antd";
+import { Button, Table } from "antd";
 import InvEditableRow from "./InvRowEdit";
 import InvEditableCell from "./InvCellEdit";
 import type { FormInstance } from "antd/es/form";

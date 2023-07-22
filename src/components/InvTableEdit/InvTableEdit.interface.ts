@@ -11,6 +11,8 @@ export interface DataType {
     SKU?: string;
     qty?: string;
     unit?: string;
+    subCustomer?: string[];
+    address?: string;
 }
 
 export interface EditableCellProps {

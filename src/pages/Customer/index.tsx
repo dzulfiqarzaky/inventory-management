@@ -20,15 +20,17 @@ import { CustomError } from "../Login";
 export interface CustomerInterface {
     _id: string;
     name: string;
-    password: string;
-    role: string;
+    address: string;
+    subCustomer: string[];
 }
 export interface CustomerDataInterface {
     data: CustomerInterface[];
 }
 const CustomerPage = () => {
     const { openNotificationWithIcon, contextNotif } = InvNotif();
-    const { dataSource, handleDelete, handleSave } = useHandleEditTable();
+    const { dataSource, handleDelete, handleSave } = useHandleEditTable(
+        "customerEditContext"
+    );
     const [customerError, setError] = useState<CustomError | null>(null);
     const [tableRowId, setTableRowId] = useState("");
 
@@ -43,8 +45,8 @@ const CustomerPage = () => {
                         return {
                             key: customer._id,
                             name: customer.name,
-                            password: "xxxxxx",
-                            role: customer.role,
+                            address: customer.address,
+                            subCustomer: customer.subCustomer,
                         };
                     }
                 );
@@ -114,20 +116,21 @@ const CustomerPage = () => {
             editable: true,
         },
         {
-            title: "password",
-            dataIndex: "password",
+            title: "address",
+            dataIndex: "address",
             editable: true,
         },
         {
-            title: "role",
-            dataIndex: "role",
+            title: "sub customer",
+            dataIndex: "subCustomer",
             editable: true,
         },
         {
             title: "Action",
             dataIndex: "Action",
+            width: "20%",
             render: (_, record: AnyObject) =>
-                dataSource.userEditContext.length >= 1 ? (
+                dataSource.customerEditContext.length >= 1 ? (
                     <>
                         <Space>
                             {record.edited ? (
@@ -139,18 +142,15 @@ const CustomerPage = () => {
                                         if (record.newData) {
                                             createCustomer({
                                                 name: record.name,
-                                                password: record.password,
-                                                role: record.role,
+                                                address: record.address,
+                                                // subCustomer: record.subCustomer,
                                             });
                                         } else {
                                             const updatedCustomer: DataType = {
                                                 name: record.name,
-                                                role: record.role,
+                                                address: record.address,
+                                                // subCustomer: record.subCustomer,
                                             };
-                                            record.password !== "xxxxxx"
-                                                ? (updatedCustomer.password =
-                                                      record.password)
-                                                : null;
                                             updateCustomer(updatedCustomer);
                                         }
                                     }}
@@ -230,6 +230,7 @@ const CustomerPage = () => {
                 }
             >
                 <InvTableEditComponent
+                    globalKey="customerEditContext"
                     columns={columns}
                     items={data?.data}
                     addButtonLabel="+ Add Customer"

@@ -36,6 +36,7 @@ export const GlobalStateProvider = ({ children }: any) => {
         supplierEditContext: [],
         rawMaterialEditContext: [],
         productEditContext: [],
+        customerEditContext: [],
     });
 
     return (

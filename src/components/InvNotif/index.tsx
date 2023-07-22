@@ -1,5 +1,4 @@
-import React from "react";
-import { Button, notification, Space } from "antd";
+import { notification } from "antd";
 import { CustomError } from "../../pages/Login";
 
 type NotificationType = "success" | "info" | "warning" | "error";

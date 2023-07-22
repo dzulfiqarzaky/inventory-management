@@ -1,5 +1,5 @@
 import { createContext, useContext, useState } from "react";
-import { DataType } from "../components/InvTableEdit/InvTableEdit.interface";
+// import { DataType } from "../components/InvTableEdit/InvTableEdit.interface";
 
 export interface GlobalStateType {
     // Define your global state variables here

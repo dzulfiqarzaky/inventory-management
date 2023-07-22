@@ -2,11 +2,15 @@ import { Table } from "antd";
 
 export interface DataType {
     key?: React.Key;
-    username: string;
+    username?: string;
+    name?: string;
     password?: string;
-    role: string;
+    role?: string;
     newData?: boolean;
     edited?: boolean;
+    SKU?: string;
+    qty?: string;
+    unit?: string;
 }
 
 export interface EditableCellProps {

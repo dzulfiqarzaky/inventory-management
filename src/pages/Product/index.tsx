@@ -20,15 +20,17 @@ import { CustomError } from "../Login";
 export interface ProductInterface {
     _id: string;
     name: string;
-    password: string;
-    role: string;
+    SKU: string;
+    unit: string;
+    qty: string;
 }
 export interface ProductDataInterface {
     data: ProductInterface[];
 }
 const ProductPage = () => {
     const { openNotificationWithIcon, contextNotif } = InvNotif();
-    const { dataSource, handleDelete, handleSave } = useHandleEditTable();
+    const { dataSource, handleDelete, handleSave } =
+        useHandleEditTable("productEditContext");
     const [productError, setError] = useState<CustomError | null>(null);
     const [tableRowId, setTableRowId] = useState("");
 
@@ -43,8 +45,9 @@ const ProductPage = () => {
                         return {
                             key: product._id,
                             name: product.name,
-                            password: "xxxxxx",
-                            role: product.role,
+                            SKU: product.SKU,
+                            unit: product.unit,
+                            qty: product.qty,
                         };
                     }
                 );
@@ -108,26 +111,31 @@ const ProductPage = () => {
         dataIndex: string;
     })[] = [
         {
+            title: "SKU",
+            dataIndex: "SKU",
+            editable: true,
+        },
+        {
             title: "name",
             dataIndex: "name",
             width: "30%",
             editable: true,
         },
         {
-            title: "password",
-            dataIndex: "password",
+            title: "unit",
+            dataIndex: "unit",
             editable: true,
         },
         {
-            title: "role",
-            dataIndex: "role",
+            title: "qty",
+            dataIndex: "qty",
             editable: true,
         },
         {
             title: "Action",
             dataIndex: "Action",
             render: (_, record: AnyObject) =>
-                dataSource.tableEditContext.length >= 1 ? (
+                dataSource.productEditContext.length >= 1 ? (
                     <>
                         <Space>
                             {record.edited ? (
@@ -139,18 +147,17 @@ const ProductPage = () => {
                                         if (record.newData) {
                                             createProduct({
                                                 name: record.name,
-                                                password: record.password,
-                                                role: record.role,
+                                                SKU: record.SKU,
+                                                qty: record.qty,
+                                                unit: record.unit,
                                             });
                                         } else {
                                             const updatedProduct: DataType = {
                                                 name: record.name,
-                                                role: record.role,
+                                                SKU: record.SKU,
+                                                qty: record.qty,
+                                                unit: record.unit,
                                             };
-                                            record.password !== "xxxxxx"
-                                                ? (updatedProduct.password =
-                                                      record.password)
-                                                : null;
                                             updateProduct(updatedProduct);
                                         }
                                     }}
@@ -230,6 +237,7 @@ const ProductPage = () => {
                 }
             >
                 <InvTableEditComponent
+                    globalKey="productEditContext"
                     columns={columns}
                     items={data?.data}
                     addButtonLabel="+ Add Product"

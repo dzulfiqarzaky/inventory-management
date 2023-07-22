@@ -7,7 +7,8 @@ export interface GlobalStateType {
     // isLoggedIn: boolean;
     // user: User | null;
     // cart: CartItem[];
-    tableEditContext: DataType[];
+    // userEditContext: DataType[];
+    [key: string]: any;
     sideBarContext: boolean;
 }
 
@@ -16,6 +17,7 @@ const GlobalStateContext = createContext<{
     globalState: GlobalStateType;
     setGlobalState: React.Dispatch<React.SetStateAction<GlobalStateType>>;
 } | null>(null);
+
 // Custom hook to access the global state
 export const useGlobalState = () => {
     const state = useContext(GlobalStateContext);
@@ -30,7 +32,10 @@ export const useGlobalState = () => {
 export const GlobalStateProvider = ({ children }: any) => {
     const [globalState, setGlobalState] = useState<GlobalStateType>({
         sideBarContext: false,
-        tableEditContext: [],
+        userEditContext: [],
+        supplierEditContext: [],
+        rawMaterialEditContext: [],
+        productEditContext: [],
     });
 
     return (

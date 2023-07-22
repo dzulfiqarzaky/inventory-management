@@ -16,14 +16,15 @@ const InvTableEditComponent: React.FC<{
         dataIndex: string;
     })[];
     items: any;
+    globalKey: string;
     addButtonLabel: string;
-}> = ({ columns, items, addButtonLabel }) => {
+}> = ({ columns, items, addButtonLabel, globalKey }) => {
     const { dataSource, handleAdd, handleSave, setDataSource } =
-        useHandleEditTable();
+        useHandleEditTable(globalKey);
 
     useEffect(() => {
         if (items) {
-            setDataSource({ ...dataSource, tableEditContext: items });
+            setDataSource({ ...dataSource, [globalKey]: items });
         }
     }, [items]);
 
@@ -65,7 +66,7 @@ const InvTableEditComponent: React.FC<{
                     record?.newData ? "editable-row" : "editable-row new-row"
                 }
                 bordered
-                dataSource={dataSource.tableEditContext}
+                dataSource={dataSource[globalKey]}
                 columns={columnsComponent as ColumnTypes}
             />
         </div>

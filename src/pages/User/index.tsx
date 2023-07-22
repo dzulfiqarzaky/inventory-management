@@ -23,15 +23,18 @@ export interface UserInterface {
     password: string;
     role: string;
 }
+
 export interface UserDataInterface {
     data: UserInterface[];
 }
+
 const UserPage = () => {
     const { openNotificationWithIcon, contextNotif } = InvNotif();
-    const { dataSource, handleDelete, handleSave } = useHandleEditTable();
+
+    const { dataSource, handleDelete, handleSaveGlobal } =
+        useHandleEditTable("userEditContext");
     const [userError, setError] = useState<CustomError | null>(null);
     const [tableRowId, setTableRowId] = useState("");
-
     const { data, isLoading, isError } = useUsers({
         options: {
             onError: (err: CustomError) => {
@@ -124,8 +127,9 @@ const UserPage = () => {
         {
             title: "Action",
             dataIndex: "Action",
+            width: "20%",
             render: (_, record: AnyObject) =>
-                dataSource.tableEditContext.length >= 1 ? (
+                dataSource.userEditContext.length >= 1 ? (
                     <>
                         <Space>
                             {record.edited ? (
@@ -133,7 +137,6 @@ const UserPage = () => {
                                     key={record.key}
                                     title="Save into database?"
                                     onConfirm={() => {
-                                        handleSave(record);
                                         if (record.newData) {
                                             createUser({
                                                 username: record.username,
@@ -151,6 +154,7 @@ const UserPage = () => {
                                                 : null;
                                             updateUser(updatedUser);
                                         }
+                                        handleSaveGlobal(record);
                                     }}
                                 >
                                     <Button
@@ -228,6 +232,7 @@ const UserPage = () => {
                 }
             >
                 <InvTableEditComponent
+                    globalKey={"userEditContext"}
                     columns={columns}
                     items={data?.data}
                     addButtonLabel="+ Add User"

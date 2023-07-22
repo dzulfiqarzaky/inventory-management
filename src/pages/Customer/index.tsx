@@ -127,7 +127,7 @@ const CustomerPage = () => {
             title: "Action",
             dataIndex: "Action",
             render: (_, record: AnyObject) =>
-                dataSource.tableEditContext.length >= 1 ? (
+                dataSource.userEditContext.length >= 1 ? (
                     <>
                         <Space>
                             {record.edited ? (

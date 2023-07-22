@@ -20,15 +20,18 @@ import { CustomError } from "../Login";
 export interface RawMaterialInterface {
     _id: string;
     name: string;
-    password: string;
-    role: string;
+    SKU: string;
+    unit: string;
+    qty: string;
 }
 export interface RawMaterialDataInterface {
     data: RawMaterialInterface[];
 }
 const RawMaterialPage = () => {
     const { openNotificationWithIcon, contextNotif } = InvNotif();
-    const { dataSource, handleDelete, handleSave } = useHandleEditTable();
+    const { dataSource, handleDelete, handleSave } = useHandleEditTable(
+        "rawMaterialEditContext"
+    );
     const [rawMaterialError, setError] = useState<CustomError | null>(null);
     const [tableRowId, setTableRowId] = useState("");
 
@@ -43,8 +46,9 @@ const RawMaterialPage = () => {
                         return {
                             key: rawMaterial._id,
                             name: rawMaterial.name,
-                            password: "xxxxxx",
-                            role: rawMaterial.role,
+                            SKU: rawMaterial.SKU,
+                            unit: rawMaterial.unit,
+                            qty: rawMaterial.qty,
                         };
                     }
                 );
@@ -66,7 +70,7 @@ const RawMaterialPage = () => {
                 setError(err);
             },
             onSuccess: () => {
-                queryClient.invalidateQueries(["rawMaterials"]);
+                queryClient.invalidateQueries(["raw-materials"]);
             },
         },
     });
@@ -82,7 +86,7 @@ const RawMaterialPage = () => {
                 setError(err);
             },
             onSuccess: () => {
-                queryClient.invalidateQueries(["rawMaterials"]);
+                queryClient.invalidateQueries(["raw-materials"]);
             },
         },
     });
@@ -98,7 +102,7 @@ const RawMaterialPage = () => {
                 setError(err);
             },
             onSuccess: () => {
-                queryClient.invalidateQueries(["rawMaterials"]);
+                queryClient.invalidateQueries(["raw-materials"]);
             },
         },
     });
@@ -108,26 +112,32 @@ const RawMaterialPage = () => {
         dataIndex: string;
     })[] = [
         {
+            title: "SKU",
+            dataIndex: "SKU",
+            editable: true,
+        },
+        {
             title: "name",
             dataIndex: "name",
             width: "30%",
             editable: true,
         },
         {
-            title: "password",
-            dataIndex: "password",
+            title: "unit",
+            dataIndex: "unit",
             editable: true,
         },
         {
-            title: "role",
-            dataIndex: "role",
+            title: "qty",
+            dataIndex: "qty",
             editable: true,
         },
         {
             title: "Action",
             dataIndex: "Action",
+            width: "20%",
             render: (_, record: AnyObject) =>
-                dataSource.tableEditContext.length >= 1 ? (
+                dataSource.rawMaterialEditContext.length >= 1 ? (
                     <>
                         <Space>
                             {record.edited ? (
@@ -139,19 +149,18 @@ const RawMaterialPage = () => {
                                         if (record.newData) {
                                             createRawMaterial({
                                                 name: record.name,
-                                                password: record.password,
-                                                role: record.role,
+                                                SKU: record.SKU,
+                                                qty: record.qty,
+                                                unit: record.unit,
                                             });
                                         } else {
                                             const updatedRawMaterial: DataType =
                                                 {
                                                     name: record.name,
-                                                    role: record.role,
+                                                    SKU: record.SKU,
+                                                    qty: record.qty,
+                                                    unit: record.unit,
                                                 };
-                                            record.password !== "xxxxxx"
-                                                ? (updatedRawMaterial.password =
-                                                      record.password)
-                                                : null;
                                             updateRawMaterial(
                                                 updatedRawMaterial
                                             );
@@ -222,7 +231,7 @@ const RawMaterialPage = () => {
     }
     return (
         <>
-            <h1>RawMaterial Page</h1>
+            <h1>Raw Material Page</h1>
             {contextNotif}
             <Skeleton
                 loading={
@@ -233,9 +242,10 @@ const RawMaterialPage = () => {
                 }
             >
                 <InvTableEditComponent
+                    globalKey="rawMaterialEditContext"
                     columns={columns}
                     items={data?.data}
-                    addButtonLabel="+ Add RawMaterial"
+                    addButtonLabel="+ Add Raw Material"
                 />
             </Skeleton>
         </>

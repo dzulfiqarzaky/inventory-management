@@ -20,15 +20,15 @@ import { CustomError } from "../Login";
 export interface SupplierInterface {
     _id: string;
     name: string;
-    password: string;
-    role: string;
 }
 export interface SupplierDataInterface {
     data: SupplierInterface[];
 }
 const SupplierPage = () => {
     const { openNotificationWithIcon, contextNotif } = InvNotif();
-    const { dataSource, handleDelete, handleSave } = useHandleEditTable();
+    const { dataSource, handleDelete, handleSave } = useHandleEditTable(
+        "supplierEditContext"
+    );
     const [supplierError, setError] = useState<CustomError | null>(null);
     const [tableRowId, setTableRowId] = useState("");
 
@@ -43,8 +43,6 @@ const SupplierPage = () => {
                         return {
                             key: supplier._id,
                             name: supplier.name,
-                            password: "xxxxxx",
-                            role: supplier.role,
                         };
                     }
                 );
@@ -110,24 +108,15 @@ const SupplierPage = () => {
         {
             title: "name",
             dataIndex: "name",
-            width: "30%",
-            editable: true,
-        },
-        {
-            title: "password",
-            dataIndex: "password",
-            editable: true,
-        },
-        {
-            title: "role",
-            dataIndex: "role",
+            // width: "80%",
             editable: true,
         },
         {
             title: "Action",
             dataIndex: "Action",
+            width: "20%",
             render: (_, record: AnyObject) =>
-                dataSource.tableEditContext.length >= 1 ? (
+                dataSource.supplierEditContext.length >= 1 ? (
                     <>
                         <Space>
                             {record.edited ? (
@@ -139,18 +128,11 @@ const SupplierPage = () => {
                                         if (record.newData) {
                                             createSupplier({
                                                 name: record.name,
-                                                password: record.password,
-                                                role: record.role,
                                             });
                                         } else {
                                             const updatedSupplier: DataType = {
                                                 name: record.name,
-                                                role: record.role,
                                             };
-                                            record.password !== "xxxxxx"
-                                                ? (updatedSupplier.password =
-                                                      record.password)
-                                                : null;
                                             updateSupplier(updatedSupplier);
                                         }
                                     }}
@@ -230,6 +212,7 @@ const SupplierPage = () => {
                 }
             >
                 <InvTableEditComponent
+                    globalKey="supplierEditContext"
                     columns={columns}
                     items={data?.data}
                     addButtonLabel="+ Add Supplier"

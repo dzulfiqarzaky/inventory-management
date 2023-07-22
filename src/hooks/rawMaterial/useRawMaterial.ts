@@ -11,7 +11,7 @@ export interface RawMaterialApiInterface {
 }
 
 const fetchRawMaterials = async ({ query = {} }: RawMaterialApiInterface) =>
-    api(`/rawMaterial`, {
+    api(`/raw-material`, {
         params: {
             search: "",
             limit: 10,
@@ -26,20 +26,20 @@ const useRawMaterials = ({
     query = {},
     options = {},
 }: RawMaterialApiInterface) =>
-    useQuery(["rawMaterials", query], () => fetchRawMaterials({ query }), {
+    useQuery(["raw-materials", query], () => fetchRawMaterials({ query }), {
         keepPreviousData: true,
         ...options,
     });
 
 const fetchRawMaterial = async ({ rawMaterial_id }: RawMaterialApiInterface) =>
-    api(`/rawMaterial/${rawMaterial_id}`).then((data) => data);
+    api(`/raw-material/${rawMaterial_id}`).then((data) => data);
 
 const useRawMaterial = ({
     rawMaterial_id,
     options = {},
 }: RawMaterialApiInterface) =>
     useQuery(
-        ["rawMaterial", rawMaterial_id],
+        ["raw-material", rawMaterial_id],
         () => fetchRawMaterial({ rawMaterial_id }),
         {
             ...options,
@@ -49,7 +49,7 @@ const useRawMaterial = ({
 const useCreateRawMaterial = ({ options = {} }: RawMaterialApiInterface) => {
     return useMutation(
         (newData: DataType) =>
-            api("/rawMaterial", {
+            api("/raw-material", {
                 method: "POST",
                 data: newData,
             }),
@@ -63,7 +63,7 @@ const useUpdateRawMaterial = ({
 }: RawMaterialApiInterface) => {
     return useMutation(
         (updates: DataType) =>
-            api(`/rawMaterial/${rawMaterial_id}`, {
+            api(`/raw-material/${rawMaterial_id}`, {
                 method: "PUT",
                 data: updates,
             }),
@@ -77,7 +77,7 @@ const useDeleteRawMaterial = ({
 }: RawMaterialApiInterface) => {
     return useMutation(
         () =>
-            api(`/rawMaterial/${rawMaterial_id}`, {
+            api(`/raw-material/${rawMaterial_id}`, {
                 method: "Delete",
             }),
         { ...options }

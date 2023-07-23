@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/restrict-plus-operands */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { useState } from "react";
 import { DataType } from "./InvTableEdit.interface";
 import { AnyObject } from "antd/es/_util/type";
@@ -7,12 +9,11 @@ type GlobalKey = keyof GlobalStateType;
 
 const useHandleEditTable = <T extends GlobalKey>(globalKey: T) => {
     const { globalState, setGlobalState } = useGlobalState();
-
     const [count, setCount] = useState(2);
 
     const handleDelete = (key: React.Key) => {
         const newData = globalState[globalKey].filter(
-            (item: any) => item.key !== key
+            (item: DataType) => item.key !== key
         );
         setGlobalState({ ...globalState, [globalKey]: newData });
     };

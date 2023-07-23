@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { AnyObject } from "antd/es/_util/type";
 import InvTableEditComponent from "../../components/InvTableEdit";
 import {
@@ -18,6 +19,13 @@ import InvNotif from "../../components/InvNotif";
 import { CustomError } from "../Login";
 
 export interface ProductInterface {
+    key: string;
+    name: string;
+    SKU: string;
+    unit: string;
+    qty: string;
+}
+export interface ProductApiInterface {
     _id: string;
     name: string;
     SKU: string;
@@ -25,7 +33,7 @@ export interface ProductInterface {
     qty: string;
 }
 export interface ProductDataInterface {
-    data: ProductInterface[];
+    data: ProductApiInterface[];
 }
 const ProductPage = () => {
     const { openNotificationWithIcon, contextNotif } = InvNotif();
@@ -40,8 +48,8 @@ const ProductPage = () => {
                 setError(err);
             },
             select: (data: ProductDataInterface) => {
-                const mappedData = data.data.map(
-                    (product: ProductInterface) => {
+                const mappedData: ProductInterface[] = data.data.map(
+                    (product: ProductApiInterface) => {
                         return {
                             key: product._id,
                             name: product.name,
@@ -59,6 +67,8 @@ const ProductPage = () => {
         },
     });
 
+    const productData: ProductDataInterface | undefined = data;
+
     const {
         mutate: createProduct,
         isLoading: isLoadingCreateProduct,
@@ -69,7 +79,7 @@ const ProductPage = () => {
                 setError(err);
             },
             onSuccess: () => {
-                queryClient.invalidateQueries(["products"]);
+                void queryClient.invalidateQueries(["products"]);
             },
         },
     });
@@ -85,7 +95,7 @@ const ProductPage = () => {
                 setError(err);
             },
             onSuccess: () => {
-                queryClient.invalidateQueries(["products"]);
+                void queryClient.invalidateQueries(["products"]);
             },
         },
     });
@@ -101,7 +111,7 @@ const ProductPage = () => {
                 setError(err);
             },
             onSuccess: () => {
-                queryClient.invalidateQueries(["products"]);
+                void queryClient.invalidateQueries(["products"]);
             },
         },
     });
@@ -166,7 +176,7 @@ const ProductPage = () => {
                                         key={record.key}
                                         type="primary"
                                         onClick={() =>
-                                            setTableRowId(record.key)
+                                            setTableRowId(record.key as string)
                                         }
                                         loading={
                                             isLoadingCreateProduct ||
@@ -195,7 +205,7 @@ const ProductPage = () => {
                                 description="Are you sure to delete this task?"
                                 cancelText="No"
                                 onConfirm={() => {
-                                    handleDelete(record.key);
+                                    handleDelete(record.key as string);
                                     if (!record.newData) {
                                         deleteProduct();
                                     }
@@ -205,7 +215,9 @@ const ProductPage = () => {
                                     key={record.key}
                                     type="primary"
                                     danger
-                                    onClick={() => setTableRowId(record.key)}
+                                    onClick={() =>
+                                        setTableRowId(record.key as string)
+                                    }
                                     loading={isLoadingDeleteProduct}
                                 >
                                     <a>Delete</a>
@@ -239,7 +251,7 @@ const ProductPage = () => {
                 <InvTableEditComponent
                     globalKey="productEditContext"
                     columns={columns}
-                    items={data?.data}
+                    items={productData?.data}
                     addButtonLabel="+ Add Product"
                 />
             </Skeleton>

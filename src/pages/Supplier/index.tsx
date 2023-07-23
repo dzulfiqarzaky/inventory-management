@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { AnyObject } from "antd/es/_util/type";
 import InvTableEditComponent from "../../components/InvTableEdit";
 import {
@@ -18,11 +19,15 @@ import InvNotif from "../../components/InvNotif";
 import { CustomError } from "../Login";
 
 export interface SupplierInterface {
+    key: string;
+    name: string;
+}
+export interface SupplierApiInterface {
     _id: string;
     name: string;
 }
 export interface SupplierDataInterface {
-    data: SupplierInterface[];
+    data: SupplierApiInterface[];
 }
 const SupplierPage = () => {
     const { openNotificationWithIcon, contextNotif } = InvNotif();
@@ -38,8 +43,8 @@ const SupplierPage = () => {
                 setError(err);
             },
             select: (data: SupplierDataInterface) => {
-                const mappedData = data.data.map(
-                    (supplier: SupplierInterface) => {
+                const mappedData: SupplierInterface[] = data.data.map(
+                    (supplier: SupplierApiInterface) => {
                         return {
                             key: supplier._id,
                             name: supplier.name,
@@ -54,6 +59,8 @@ const SupplierPage = () => {
         },
     });
 
+    const SupplierData: SupplierDataInterface | undefined = data;
+
     const {
         mutate: createSupplier,
         isLoading: isLoadingCreateSupplier,
@@ -64,7 +71,7 @@ const SupplierPage = () => {
                 setError(err);
             },
             onSuccess: () => {
-                queryClient.invalidateQueries(["suppliers"]);
+                void queryClient.invalidateQueries(["suppliers"]);
             },
         },
     });
@@ -80,7 +87,7 @@ const SupplierPage = () => {
                 setError(err);
             },
             onSuccess: () => {
-                queryClient.invalidateQueries(["suppliers"]);
+                void queryClient.invalidateQueries(["suppliers"]);
             },
         },
     });
@@ -96,7 +103,7 @@ const SupplierPage = () => {
                 setError(err);
             },
             onSuccess: () => {
-                queryClient.invalidateQueries(["suppliers"]);
+                void queryClient.invalidateQueries(["suppliers"]);
             },
         },
     });
@@ -121,27 +128,27 @@ const SupplierPage = () => {
                         <Space>
                             {record.edited ? (
                                 <Popconfirm
-                                    key={record.key}
+                                    key={record.key as string}
                                     title="Save into database?"
                                     onConfirm={() => {
                                         handleSave(record);
                                         if (record.newData) {
                                             createSupplier({
-                                                name: record.name,
+                                                name: record.name as string,
                                             });
                                         } else {
                                             const updatedSupplier: DataType = {
-                                                name: record.name,
+                                                name: record.name as string,
                                             };
                                             updateSupplier(updatedSupplier);
                                         }
                                     }}
                                 >
                                     <Button
-                                        key={record.key}
+                                        key={record.key as string}
                                         type="primary"
                                         onClick={() =>
-                                            setTableRowId(record.key)
+                                            setTableRowId(record.key as string)
                                         }
                                         loading={
                                             isLoadingCreateSupplier ||
@@ -153,7 +160,7 @@ const SupplierPage = () => {
                                 </Popconfirm>
                             ) : (
                                 <Button
-                                    key={record.key}
+                                    key={record.key as string}
                                     type="primary"
                                     disabled
                                     loading={
@@ -165,22 +172,24 @@ const SupplierPage = () => {
                                 </Button>
                             )}
                             <Popconfirm
-                                key={record.key}
+                                key={record.key as string}
                                 title="Delete the task"
                                 description="Are you sure to delete this task?"
                                 cancelText="No"
                                 onConfirm={() => {
-                                    handleDelete(record.key);
+                                    handleDelete(record.key as string);
                                     if (!record.newData) {
                                         deleteSupplier();
                                     }
                                 }}
                             >
                                 <Button
-                                    key={record.key}
+                                    key={record.key as string}
                                     type="primary"
                                     danger
-                                    onClick={() => setTableRowId(record.key)}
+                                    onClick={() =>
+                                        setTableRowId(record.key as string)
+                                    }
                                     loading={isLoadingDeleteSupplier}
                                 >
                                     <a>Delete</a>
@@ -214,7 +223,7 @@ const SupplierPage = () => {
                 <InvTableEditComponent
                     globalKey="supplierEditContext"
                     columns={columns}
-                    items={data?.data}
+                    items={SupplierData?.data}
                     addButtonLabel="+ Add Supplier"
                 />
             </Skeleton>

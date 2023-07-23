@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { AnyObject } from "antd/es/_util/type";
 import InvTableEditComponent from "../../components/InvTableEdit";
 import {
@@ -18,6 +19,13 @@ import InvNotif from "../../components/InvNotif";
 import { CustomError } from "../Login";
 
 export interface RawMaterialInterface {
+    key: string;
+    name: string;
+    SKU: string;
+    unit: string;
+    qty: string;
+}
+export interface RawMaterialApiInterface {
     _id: string;
     name: string;
     SKU: string;
@@ -25,8 +33,9 @@ export interface RawMaterialInterface {
     qty: string;
 }
 export interface RawMaterialDataInterface {
-    data: RawMaterialInterface[];
+    data: RawMaterialApiInterface[];
 }
+
 const RawMaterialPage = () => {
     const { openNotificationWithIcon, contextNotif } = InvNotif();
     const { dataSource, handleDelete, handleSave } = useHandleEditTable(
@@ -41,8 +50,8 @@ const RawMaterialPage = () => {
                 setError(err);
             },
             select: (data: RawMaterialDataInterface) => {
-                const mappedData = data.data.map(
-                    (rawMaterial: RawMaterialInterface) => {
+                const mappedData: RawMaterialInterface[] = data.data.map(
+                    (rawMaterial: RawMaterialApiInterface) => {
                         return {
                             key: rawMaterial._id,
                             name: rawMaterial.name,
@@ -60,6 +69,8 @@ const RawMaterialPage = () => {
         },
     });
 
+    const RawMaterialData: RawMaterialDataInterface | undefined = data;
+
     const {
         mutate: createRawMaterial,
         isLoading: isLoadingCreateRawMaterial,
@@ -70,7 +81,7 @@ const RawMaterialPage = () => {
                 setError(err);
             },
             onSuccess: () => {
-                queryClient.invalidateQueries(["raw-materials"]);
+                void queryClient.invalidateQueries(["raw-materials"]);
             },
         },
     });
@@ -86,7 +97,7 @@ const RawMaterialPage = () => {
                 setError(err);
             },
             onSuccess: () => {
-                queryClient.invalidateQueries(["raw-materials"]);
+                void queryClient.invalidateQueries(["raw-materials"]);
             },
         },
     });
@@ -102,7 +113,7 @@ const RawMaterialPage = () => {
                 setError(err);
             },
             onSuccess: () => {
-                queryClient.invalidateQueries(["raw-materials"]);
+                void queryClient.invalidateQueries(["raw-materials"]);
             },
         },
     });
@@ -171,7 +182,7 @@ const RawMaterialPage = () => {
                                         key={record.key}
                                         type="primary"
                                         onClick={() =>
-                                            setTableRowId(record.key)
+                                            setTableRowId(record.key as string)
                                         }
                                         loading={
                                             isLoadingCreateRawMaterial ||
@@ -200,7 +211,7 @@ const RawMaterialPage = () => {
                                 description="Are you sure to delete this task?"
                                 cancelText="No"
                                 onConfirm={() => {
-                                    handleDelete(record.key);
+                                    handleDelete(record.key as string);
                                     if (!record.newData) {
                                         deleteRawMaterial();
                                     }
@@ -210,7 +221,9 @@ const RawMaterialPage = () => {
                                     key={record.key}
                                     type="primary"
                                     danger
-                                    onClick={() => setTableRowId(record.key)}
+                                    onClick={() =>
+                                        setTableRowId(record.key as string)
+                                    }
                                     loading={isLoadingDeleteRawMaterial}
                                 >
                                     <a>Delete</a>
@@ -244,7 +257,7 @@ const RawMaterialPage = () => {
                 <InvTableEditComponent
                     globalKey="rawMaterialEditContext"
                     columns={columns}
-                    items={data?.data}
+                    items={RawMaterialData?.data}
                     addButtonLabel="+ Add Raw Material"
                 />
             </Skeleton>

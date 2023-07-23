@@ -1,17 +1,22 @@
 import { createContext, useContext, useState } from "react";
+import { UserInterface } from "../pages/User";
+import { SupplierInterface } from "../pages/Supplier";
+import { RawMaterialInterface } from "../pages/RawMaterial";
+import { ProductInterface } from "../pages/Product";
+import { CustomerInterface } from "../pages/Customer";
 // import { DataType } from "../components/InvTableEdit/InvTableEdit.interface";
 
 export interface GlobalStateType {
-    // Define your global state variables here
-    // For example:
-    // isLoggedIn: boolean;
-    // user: User | null;
-    // cart: CartItem[];
-    // userEditContext: DataType[];
-    [key: string]: any;
-    sideBarContext: boolean;
+    // sideBarContext: boolean;
+    userEditContext: UserInterface[];
+    supplierEditContext: SupplierInterface[];
+    rawMaterialEditContext: RawMaterialInterface[];
+    productEditContext: ProductInterface[];
+    customerEditContext: CustomerInterface[];
 }
-
+interface GlobalStateProviderProps {
+    children: React.ReactNode;
+}
 // Create a new context for the global state
 const GlobalStateContext = createContext<{
     globalState: GlobalStateType;
@@ -29,7 +34,9 @@ export const useGlobalState = () => {
     return state;
 };
 
-export const GlobalStateProvider = ({ children }: any) => {
+export const GlobalStateProvider: React.FC<GlobalStateProviderProps> = ({
+    children,
+}) => {
     const [globalState, setGlobalState] = useState<GlobalStateType>({
         sideBarContext: false,
         userEditContext: [],

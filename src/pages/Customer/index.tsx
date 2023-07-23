@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { AnyObject } from "antd/es/_util/type";
 import InvTableEditComponent from "../../components/InvTableEdit";
 import {
@@ -18,13 +19,19 @@ import InvNotif from "../../components/InvNotif";
 import { CustomError } from "../Login";
 
 export interface CustomerInterface {
+    key: string;
+    name: string;
+    address: string;
+    subCustomer: string[];
+}
+export interface CustomerApiInterface {
     _id: string;
     name: string;
     address: string;
     subCustomer: string[];
 }
 export interface CustomerDataInterface {
-    data: CustomerInterface[];
+    data: CustomerApiInterface[];
 }
 const CustomerPage = () => {
     const { openNotificationWithIcon, contextNotif } = InvNotif();
@@ -40,8 +47,8 @@ const CustomerPage = () => {
                 setError(err);
             },
             select: (data: CustomerDataInterface) => {
-                const mappedData = data.data.map(
-                    (customer: CustomerInterface) => {
+                const mappedData: CustomerInterface[] = data.data.map(
+                    (customer: CustomerApiInterface) => {
                         return {
                             key: customer._id,
                             name: customer.name,
@@ -58,6 +65,8 @@ const CustomerPage = () => {
         },
     });
 
+    const customerData: CustomerDataInterface | undefined = data;
+
     const {
         mutate: createCustomer,
         isLoading: isLoadingCreateCustomer,
@@ -68,7 +77,7 @@ const CustomerPage = () => {
                 setError(err);
             },
             onSuccess: () => {
-                queryClient.invalidateQueries(["customers"]);
+                void queryClient.invalidateQueries(["customers"]);
             },
         },
     });
@@ -84,7 +93,7 @@ const CustomerPage = () => {
                 setError(err);
             },
             onSuccess: () => {
-                queryClient.invalidateQueries(["customers"]);
+                void queryClient.invalidateQueries(["customers"]);
             },
         },
     });
@@ -100,7 +109,7 @@ const CustomerPage = () => {
                 setError(err);
             },
             onSuccess: () => {
-                queryClient.invalidateQueries(["customers"]);
+                void queryClient.invalidateQueries(["customers"]);
             },
         },
     });
@@ -159,7 +168,7 @@ const CustomerPage = () => {
                                         key={record.key}
                                         type="primary"
                                         onClick={() =>
-                                            setTableRowId(record.key)
+                                            setTableRowId(record.key as string)
                                         }
                                         loading={
                                             isLoadingCreateCustomer ||
@@ -188,7 +197,7 @@ const CustomerPage = () => {
                                 description="Are you sure to delete this task?"
                                 cancelText="No"
                                 onConfirm={() => {
-                                    handleDelete(record.key);
+                                    handleDelete(record.key as string);
                                     if (!record.newData) {
                                         deleteCustomer();
                                     }
@@ -198,7 +207,9 @@ const CustomerPage = () => {
                                     key={record.key}
                                     type="primary"
                                     danger
-                                    onClick={() => setTableRowId(record.key)}
+                                    onClick={() =>
+                                        setTableRowId(record.key as string)
+                                    }
                                     loading={isLoadingDeleteCustomer}
                                 >
                                     <a>Delete</a>
@@ -232,7 +243,7 @@ const CustomerPage = () => {
                 <InvTableEditComponent
                     globalKey="customerEditContext"
                     columns={columns}
-                    items={data?.data}
+                    items={customerData?.data}
                     addButtonLabel="+ Add Customer"
                 />
             </Skeleton>

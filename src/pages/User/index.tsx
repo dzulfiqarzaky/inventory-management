@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { AnyObject } from "antd/es/_util/type";
 import InvTableEditComponent from "../../components/InvTableEdit";
 import {
@@ -18,6 +19,13 @@ import InvNotif from "../../components/InvNotif";
 import { CustomError } from "../Login";
 
 export interface UserInterface {
+    key: string;
+    username: string;
+    password: string;
+    role: string;
+}
+
+export interface UserApiInterface {
     _id: string;
     username: string;
     password: string;
@@ -25,30 +33,31 @@ export interface UserInterface {
 }
 
 export interface UserDataInterface {
-    data: UserInterface[];
+    data: UserApiInterface[];
 }
 
 const UserPage = () => {
     const { openNotificationWithIcon, contextNotif } = InvNotif();
-
     const { dataSource, handleDelete, handleSaveGlobal } =
         useHandleEditTable("userEditContext");
     const [userError, setError] = useState<CustomError | null>(null);
-    const [tableRowId, setTableRowId] = useState("");
+    const [tableRowId, setTableRowId] = useState<string>("");
     const { data, isLoading, isError } = useUsers({
         options: {
             onError: (err: CustomError) => {
                 setError(err);
             },
             select: (data: UserDataInterface) => {
-                const mappedData = data.data.map((user: UserInterface) => {
-                    return {
-                        key: user._id,
-                        username: user.username,
-                        password: "xxxxxx",
-                        role: user.role,
-                    };
-                });
+                const mappedData: UserInterface[] = data.data.map(
+                    (user: UserApiInterface) => {
+                        return {
+                            key: user._id,
+                            username: user.username,
+                            password: "xxxxxx",
+                            role: user.role,
+                        };
+                    }
+                );
                 return { data: mappedData };
             },
         },
@@ -56,6 +65,8 @@ const UserPage = () => {
             search: "asd",
         },
     });
+
+    const userData: UserDataInterface | undefined = data;
 
     const {
         mutate: createUser,
@@ -67,7 +78,7 @@ const UserPage = () => {
                 setError(err);
             },
             onSuccess: () => {
-                queryClient.invalidateQueries(["users"]);
+                void queryClient.invalidateQueries(["users"]);
             },
         },
     });
@@ -83,7 +94,7 @@ const UserPage = () => {
                 setError(err);
             },
             onSuccess: () => {
-                queryClient.invalidateQueries(["users"]);
+                void queryClient.invalidateQueries(["users"]);
             },
         },
     });
@@ -99,7 +110,7 @@ const UserPage = () => {
                 setError(err);
             },
             onSuccess: () => {
-                queryClient.invalidateQueries(["users"]);
+                void queryClient.invalidateQueries(["users"]);
             },
         },
     });
@@ -161,7 +172,7 @@ const UserPage = () => {
                                         key={record.key}
                                         type="primary"
                                         onClick={() =>
-                                            setTableRowId(record.key)
+                                            setTableRowId(record.key as string)
                                         }
                                         loading={
                                             isLoadingCreateUser ||
@@ -190,7 +201,7 @@ const UserPage = () => {
                                 description="Are you sure to delete this task?"
                                 cancelText="No"
                                 onConfirm={() => {
-                                    handleDelete(record.key);
+                                    handleDelete(record.key as string);
                                     if (!record.newData) {
                                         deleteUser();
                                     }
@@ -200,7 +211,9 @@ const UserPage = () => {
                                     key={record.key}
                                     type="primary"
                                     danger
-                                    onClick={() => setTableRowId(record.key)}
+                                    onClick={() =>
+                                        setTableRowId(record.key as string)
+                                    }
                                     loading={isLoadingDeleteUser}
                                 >
                                     <a>Delete</a>
@@ -234,7 +247,7 @@ const UserPage = () => {
                 <InvTableEditComponent
                     globalKey={"userEditContext"}
                     columns={columns}
-                    items={data?.data}
+                    items={userData?.data}
                     addButtonLabel="+ Add User"
                 />
             </Skeleton>

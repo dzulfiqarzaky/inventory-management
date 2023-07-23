@@ -2,6 +2,7 @@ import { Table } from "antd";
 
 export interface DataType {
     key?: React.Key;
+    _id?: string;
     username?: string;
     name?: string;
     password?: string;

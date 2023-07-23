@@ -77,8 +77,8 @@ const UserPage = () => {
             onError: (err: CustomError) => {
                 setError(err);
             },
-            onSuccess: () => {
-                void queryClient.invalidateQueries(["users"]);
+            onSuccess: async () => {
+                await queryClient.invalidateQueries(["users"]);
             },
         },
     });
@@ -93,8 +93,8 @@ const UserPage = () => {
             onError: (err: CustomError) => {
                 setError(err);
             },
-            onSuccess: () => {
-                void queryClient.invalidateQueries(["users"]);
+            onSuccess: async () => {
+                await queryClient.invalidateQueries(["users"]);
             },
         },
     });
@@ -109,8 +109,8 @@ const UserPage = () => {
             onError: (err: CustomError) => {
                 setError(err);
             },
-            onSuccess: () => {
-                void queryClient.invalidateQueries(["users"]);
+            onSuccess: async () => {
+                await queryClient.invalidateQueries(["users"]);
             },
         },
     });

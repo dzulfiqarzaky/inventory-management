@@ -78,8 +78,8 @@ const ProductPage = () => {
             onError: (err: CustomError) => {
                 setError(err);
             },
-            onSuccess: () => {
-                void queryClient.invalidateQueries(["products"]);
+            onSuccess: async () => {
+                await queryClient.invalidateQueries(["products"]);
             },
         },
     });
@@ -94,8 +94,8 @@ const ProductPage = () => {
             onError: (err: CustomError) => {
                 setError(err);
             },
-            onSuccess: () => {
-                void queryClient.invalidateQueries(["products"]);
+            onSuccess: async () => {
+                await queryClient.invalidateQueries(["products"]);
             },
         },
     });
@@ -110,8 +110,8 @@ const ProductPage = () => {
             onError: (err: CustomError) => {
                 setError(err);
             },
-            onSuccess: () => {
-                void queryClient.invalidateQueries(["products"]);
+            onSuccess: async () => {
+                await queryClient.invalidateQueries(["products"]);
             },
         },
     });

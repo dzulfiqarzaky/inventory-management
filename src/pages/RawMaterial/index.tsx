@@ -80,8 +80,8 @@ const RawMaterialPage = () => {
             onError: (err: CustomError) => {
                 setError(err);
             },
-            onSuccess: () => {
-                void queryClient.invalidateQueries(["raw-materials"]);
+            onSuccess: async () => {
+                await queryClient.invalidateQueries(["raw-materials"]);
             },
         },
     });
@@ -96,8 +96,8 @@ const RawMaterialPage = () => {
             onError: (err: CustomError) => {
                 setError(err);
             },
-            onSuccess: () => {
-                void queryClient.invalidateQueries(["raw-materials"]);
+            onSuccess: async () => {
+                await queryClient.invalidateQueries(["raw-materials"]);
             },
         },
     });
@@ -112,8 +112,8 @@ const RawMaterialPage = () => {
             onError: (err: CustomError) => {
                 setError(err);
             },
-            onSuccess: () => {
-                void queryClient.invalidateQueries(["raw-materials"]);
+            onSuccess: async () => {
+                await queryClient.invalidateQueries(["raw-materials"]);
             },
         },
     });

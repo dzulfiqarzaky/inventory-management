@@ -7,20 +7,25 @@ import { CustomerInterface } from "../pages/Customer";
 // import { DataType } from "../components/InvTableEdit/InvTableEdit.interface";
 
 export interface GlobalStateType {
-    // sideBarContext: boolean;
     userEditContext: UserInterface[];
     supplierEditContext: SupplierInterface[];
     rawMaterialEditContext: RawMaterialInterface[];
     productEditContext: ProductInterface[];
     customerEditContext: CustomerInterface[];
 }
+
+export interface GlobalStateCombination extends GlobalStateType {
+    sideBarContext: boolean;
+}
 interface GlobalStateProviderProps {
     children: React.ReactNode;
 }
 // Create a new context for the global state
 const GlobalStateContext = createContext<{
-    globalState: GlobalStateType;
-    setGlobalState: React.Dispatch<React.SetStateAction<GlobalStateType>>;
+    globalState: GlobalStateCombination;
+    setGlobalState: React.Dispatch<
+        React.SetStateAction<GlobalStateCombination>
+    >;
 } | null>(null);
 
 // Custom hook to access the global state
@@ -37,7 +42,7 @@ export const useGlobalState = () => {
 export const GlobalStateProvider: React.FC<GlobalStateProviderProps> = ({
     children,
 }) => {
-    const [globalState, setGlobalState] = useState<GlobalStateType>({
+    const [globalState, setGlobalState] = useState<GlobalStateCombination>({
         sideBarContext: false,
         userEditContext: [],
         supplierEditContext: [],

@@ -70,8 +70,8 @@ const SupplierPage = () => {
             onError: (err: CustomError) => {
                 setError(err);
             },
-            onSuccess: () => {
-                void queryClient.invalidateQueries(["suppliers"]);
+            onSuccess: async () => {
+                await queryClient.invalidateQueries(["suppliers"]);
             },
         },
     });
@@ -86,8 +86,8 @@ const SupplierPage = () => {
             onError: (err: CustomError) => {
                 setError(err);
             },
-            onSuccess: () => {
-                void queryClient.invalidateQueries(["suppliers"]);
+            onSuccess: async () => {
+                await queryClient.invalidateQueries(["suppliers"]);
             },
         },
     });
@@ -102,8 +102,8 @@ const SupplierPage = () => {
             onError: (err: CustomError) => {
                 setError(err);
             },
-            onSuccess: () => {
-                void queryClient.invalidateQueries(["suppliers"]);
+            onSuccess: async () => {
+                await queryClient.invalidateQueries(["suppliers"]);
             },
         },
     });

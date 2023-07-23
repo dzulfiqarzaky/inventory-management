@@ -76,8 +76,8 @@ const CustomerPage = () => {
             onError: (err: CustomError) => {
                 setError(err);
             },
-            onSuccess: () => {
-                void queryClient.invalidateQueries(["customers"]);
+            onSuccess: async () => {
+                await queryClient.invalidateQueries(["customers"]);
             },
         },
     });
@@ -92,8 +92,8 @@ const CustomerPage = () => {
             onError: (err: CustomError) => {
                 setError(err);
             },
-            onSuccess: () => {
-                void queryClient.invalidateQueries(["customers"]);
+            onSuccess: async () => {
+                await queryClient.invalidateQueries(["customers"]);
             },
         },
     });
@@ -108,8 +108,8 @@ const CustomerPage = () => {
             onError: (err: CustomError) => {
                 setError(err);
             },
-            onSuccess: () => {
-                void queryClient.invalidateQueries(["customers"]);
+            onSuccess: async () => {
+                await queryClient.invalidateQueries(["customers"]);
             },
         },
     });

@@ -1,20 +1,28 @@
 import { Table } from "antd";
+import { UserInterface } from "../../pages/User";
+import { SupplierInterface } from "../../pages/Supplier";
+import { RawMaterialInterface } from "../../pages/RawMaterial";
+import { ProductInterface } from "../../pages/Product";
+import { CustomerInterface } from "../../pages/Customer";
 
-export interface DataType {
+type CommonDataType = {
     key?: React.Key;
-    _id?: string;
-    username?: string;
-    name?: string;
-    password?: string;
-    role?: string;
     newData?: boolean;
     edited?: boolean;
-    SKU?: string;
-    qty?: string;
-    unit?: string;
-    subCustomer?: string[];
-    address?: string;
-}
+};
+
+type UserDataType = Partial<UserInterface>;
+type SupplierDataType = Partial<SupplierInterface>;
+type RawMaterialDataType = Partial<RawMaterialInterface>;
+type ProductDataType = Partial<ProductInterface>;
+type CustomerDataType = Partial<CustomerInterface>;
+
+export type DataType = CommonDataType &
+    UserDataType &
+    SupplierDataType &
+    RawMaterialDataType &
+    ProductDataType &
+    CustomerDataType;
 
 export interface EditableCellProps {
     title: React.ReactNode;

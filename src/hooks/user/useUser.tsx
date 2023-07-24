@@ -1,10 +1,12 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
 import { useMutation, useQuery } from "@tanstack/react-query";
 import api from "../../lib/client";
 import { DataType } from "../../components/InvTableEdit/InvTableEdit.interface";
 
 export interface UserApiInterface {
     user_id?: string;
-    options?: {};
+    options?: object;
     query?: {
         search?: string;
     };
@@ -38,7 +40,7 @@ const useUser = ({ user_id, options = {} }: UserApiInterface) =>
 
 const useCreateUser = ({ options = {} }: UserApiInterface) => {
     return useMutation(
-        (newData: DataType) =>
+        (newData: Partial<DataType>) =>
             api("/user", {
                 method: "POST",
                 data: newData,
@@ -49,7 +51,7 @@ const useCreateUser = ({ options = {} }: UserApiInterface) => {
 
 const useUpdateUser = ({ user_id, options = {} }: UserApiInterface) => {
     return useMutation(
-        (updates: DataType) =>
+        (updates: Partial<DataType>) =>
             api(`/user/${user_id}`, {
                 method: "PUT",
                 data: updates,

@@ -6,23 +6,30 @@ import { ProductInterface } from "../../pages/Product";
 import { CustomerInterface } from "../../pages/Customer";
 
 type CommonDataType = {
-    key?: React.Key;
+    // key?: React.Key;
     newData?: boolean;
     edited?: boolean;
 };
 
-type UserDataType = Partial<UserInterface>;
-type SupplierDataType = Partial<SupplierInterface>;
-type RawMaterialDataType = Partial<RawMaterialInterface>;
-type ProductDataType = Partial<ProductInterface>;
-type CustomerDataType = Partial<CustomerInterface>;
+// type UserDataType = Partial<UserInterface>;
+// type SupplierDataType = Partial<SupplierInterface>;
+// type RawMaterialDataType = Partial<RawMaterialInterface>;
+// type ProductDataType = Partial<ProductInterface>;
+// type CustomerDataType = Partial<CustomerInterface>;
+type UserDataType = UserInterface;
+type SupplierDataType = SupplierInterface;
+type RawMaterialDataType = RawMaterialInterface;
+type ProductDataType = ProductInterface;
+type CustomerDataType = CustomerInterface;
 
 export type DataType = CommonDataType &
-    UserDataType &
-    SupplierDataType &
-    RawMaterialDataType &
-    ProductDataType &
-    CustomerDataType;
+    (
+        | UserDataType
+        | SupplierDataType
+        | RawMaterialDataType
+        | ProductDataType
+        | CustomerDataType
+    );
 
 export interface EditableCellProps {
     title: React.ReactNode;

@@ -34,6 +34,7 @@ const InvSidebar = ({ items }: { items: MenuItem[] }) => {
                 mode="inline"
                 // items={items}
             >
+                {/* <Space direction="vertical" style={{ display: "flex" }}> */}
                 {items.map((item) =>
                     item.children ? (
                         <Menu.SubMenu

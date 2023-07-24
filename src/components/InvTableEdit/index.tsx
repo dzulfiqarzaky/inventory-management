@@ -6,7 +6,6 @@ import InvEditableCell from "./InvCellEdit";
 import type { FormInstance } from "antd/es/form";
 import { ColumnTypes, DataType } from "./InvTableEdit.interface";
 import useHandleEditTable from "./useHandleTableEdit";
-import { GlobalStateType } from "../../store";
 
 export const EditableContext = React.createContext<FormInstance<any> | null>(
     null
@@ -17,16 +16,17 @@ const InvTableEditComponent: React.FC<{
         editable?: boolean;
         dataIndex: string;
     })[];
-    items: unknown;
-    globalKey: string;
+    items: DataType[];
     addButtonLabel: string;
-}> = ({ columns, items, addButtonLabel, globalKey }) => {
+}> = ({ columns, items, addButtonLabel }) => {
     const { dataSource, handleAdd, handleSave, setDataSource } =
-        useHandleEditTable(globalKey as keyof GlobalStateType);
+        // useHandleEditTable(globalKey as keyof GlobalStateType);
+        useHandleEditTable();
 
     useEffect(() => {
         if (items) {
-            setDataSource({ ...dataSource, [globalKey]: items });
+            // setDataSource({ ...dataSource, [globalKey]: items });
+            setDataSource(items);
         }
     }, []);
 
@@ -68,7 +68,8 @@ const InvTableEditComponent: React.FC<{
                     record?.newData ? "editable-row" : "editable-row new-row"
                 }
                 bordered
-                dataSource={dataSource[globalKey as keyof GlobalStateType]}
+                // dataSource={dataSource[globalKey as keyof GlobalStateType]}
+                dataSource={dataSource}
                 columns={columnsComponent as ColumnTypes}
             />
         </div>

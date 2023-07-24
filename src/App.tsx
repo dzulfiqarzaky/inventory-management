@@ -1,9 +1,13 @@
 import React from "react";
 import {
-    FileOutlined,
     PieChartOutlined,
     TeamOutlined,
     UserOutlined,
+    ShopOutlined,
+    DollarOutlined,
+    DatabaseOutlined,
+    SettingOutlined,
+    FileSyncOutlined,
 } from "@ant-design/icons";
 import { Breadcrumb, Layout, Skeleton, Space, theme } from "antd";
 import InvStatistics from "./components/statistics";
@@ -12,8 +16,9 @@ import { Outlet } from "react-router";
 import { useGlobalState } from "./store";
 import { RequireAuth, RequireNoAuth } from "./lib/Auth";
 import LoginPage from "./pages/Login/index";
-const { Header, Content, Footer } = Layout;
+import { useLocation } from "react-router-dom";
 
+const { Header, Content, Footer } = Layout;
 export type MenuItem = {
     key: string;
     icon: any;
@@ -35,7 +40,7 @@ export const SidebarData: MenuItem[] = [
     },
     {
         key: "sub1",
-        icon: <UserOutlined />,
+        icon: <FileSyncOutlined />,
         children: [
             {
                 key: "3",
@@ -52,13 +57,13 @@ export const SidebarData: MenuItem[] = [
     },
     {
         key: "sub2",
-        icon: <TeamOutlined />,
+        icon: <SettingOutlined />,
         label: "Production",
         path: "/product/production",
     },
     {
         key: "sub3",
-        icon: <TeamOutlined />,
+        icon: <DatabaseOutlined />,
         children: [
             {
                 key: "7",
@@ -75,7 +80,7 @@ export const SidebarData: MenuItem[] = [
     },
     {
         key: "sub4",
-        icon: <TeamOutlined />,
+        icon: <DollarOutlined />,
         children: [
             {
                 key: "9",
@@ -92,25 +97,33 @@ export const SidebarData: MenuItem[] = [
     },
     {
         key: "11",
-        icon: <FileOutlined />,
+        icon: <TeamOutlined />,
         label: "Customer",
         path: "/customer",
     },
     {
         key: "12",
-        icon: <FileOutlined />,
+        icon: <ShopOutlined />,
         label: "Supplier",
         path: "/supplier",
     },
     {
         key: "13",
-        icon: <FileOutlined />,
+        icon: <UserOutlined />,
         label: "User",
         path: "/user",
     },
 ];
 
 const App: React.FC = () => {
+    const location = useLocation();
+
+    // Split the URL into segments based on "/"
+    const segments = location.pathname.split("/");
+
+    // Filter out empty segments (e.g., when URL is "/")
+    const filteredSegments = segments.filter((segment) => segment !== "");
+
     const {
         token: { colorBgContainer },
     } = theme.useToken();
@@ -130,9 +143,15 @@ const App: React.FC = () => {
                         style={{ padding: 0, background: colorBgContainer }}
                     />
                     <Content style={{ margin: "0 16px" }}>
-                        <Breadcrumb style={{ margin: "16px 0" }}>
-                            <Breadcrumb.Item>Product</Breadcrumb.Item>
-                            <Breadcrumb.Item>List</Breadcrumb.Item>
+                        <Breadcrumb
+                            style={{ margin: "16px 0", fontSize: "20px" }}
+                        >
+                            {filteredSegments.map((segment, index) => (
+                                <Breadcrumb.Item key={index}>
+                                    {segment.charAt(0).toUpperCase() +
+                                        segment.slice(1)}
+                                </Breadcrumb.Item>
+                            ))}
                         </Breadcrumb>
                         <div
                             style={{

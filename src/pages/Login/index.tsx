@@ -1,6 +1,5 @@
 // LoginPage.jsx
 import InvForm from "../../components/InvForm/InvForm";
-import { Navigate } from "react-router-dom";
 import { useState } from "react";
 import styled from "styled-components";
 import { Alert, Space } from "antd";
@@ -76,6 +75,10 @@ const LoginPage = () => {
         });
     };
 
+    if (user) {
+        window.location.href = "/";
+    }
+
     return (
         <CenteredContainer>
             <div>
@@ -88,7 +91,6 @@ const LoginPage = () => {
                             closable
                         />
                     ) : null}
-                    {user && <Navigate to="/" replace={true} />}
                     <InvForm
                         formData={loginFormData}
                         onSubmit={onSubmit}

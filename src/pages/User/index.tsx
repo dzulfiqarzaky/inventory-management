@@ -38,8 +38,7 @@ export interface UserDataInterface {
 
 const UserPage = () => {
     const { openNotificationWithIcon, contextNotif } = InvNotif();
-    const { dataSource, handleDelete, handleSaveGlobal } =
-        useHandleEditTable("userEditContext");
+    const { handleDelete, handleSaveGlobal } = useHandleEditTable();
     const [userError, setError] = useState<CustomError | null>(null);
     const [tableRowId, setTableRowId] = useState<string>("");
     const { data, isLoading, isError } = useUsers({
@@ -66,7 +65,7 @@ const UserPage = () => {
         },
     });
 
-    const userData: UserDataInterface | undefined = data;
+    const userData: UserDataInterface = data;
 
     const {
         mutate: createUser,
@@ -139,54 +138,40 @@ const UserPage = () => {
             title: "Action",
             dataIndex: "Action",
             width: "20%",
-            render: (_, record: AnyObject) =>
-                dataSource.userEditContext.length >= 1 ? (
-                    <>
-                        <Space>
-                            {record.edited ? (
-                                <Popconfirm
-                                    key={record.key}
-                                    title="Save into database?"
-                                    onConfirm={() => {
-                                        if (record.newData) {
-                                            createUser({
-                                                username: record.username,
-                                                password: record.password,
-                                                role: record.role,
-                                            });
-                                        } else {
-                                            const updatedUser: DataType = {
-                                                username: record.username,
-                                                role: record.role,
-                                            };
-                                            record.password !== "xxxxxx"
-                                                ? (updatedUser.password =
-                                                      record.password)
-                                                : null;
-                                            updateUser(updatedUser);
-                                        }
-                                        handleSaveGlobal(record);
-                                    }}
-                                >
-                                    <Button
-                                        key={record.key}
-                                        type="primary"
-                                        onClick={() =>
-                                            setTableRowId(record.key as string)
-                                        }
-                                        loading={
-                                            isLoadingCreateUser ||
-                                            isLoadingUpdateUser
-                                        }
-                                    >
-                                        <a>Save</a>
-                                    </Button>
-                                </Popconfirm>
-                            ) : (
+            render: (_, record: AnyObject) => (
+                <>
+                    <Space>
+                        {record.edited ? (
+                            <Popconfirm
+                                key={record.key}
+                                title="Save into database?"
+                                onConfirm={() => {
+                                    if (record.newData) {
+                                        createUser({
+                                            username: record.username,
+                                            password: record.password,
+                                            role: record.role,
+                                        });
+                                    } else {
+                                        const updatedUser: DataType = {
+                                            username: record.username,
+                                            role: record.role,
+                                        };
+                                        record.password !== "xxxxxx"
+                                            ? (updatedUser.password =
+                                                  record.password)
+                                            : null;
+                                        updateUser(updatedUser);
+                                    }
+                                    handleSaveGlobal(record);
+                                }}
+                            >
                                 <Button
                                     key={record.key}
                                     type="primary"
-                                    disabled
+                                    onClick={() =>
+                                        setTableRowId(record.key as string)
+                                    }
                                     loading={
                                         isLoadingCreateUser ||
                                         isLoadingUpdateUser
@@ -194,36 +179,49 @@ const UserPage = () => {
                                 >
                                     <a>Save</a>
                                 </Button>
-                            )}
-                            <Popconfirm
-                                key={record.key}
-                                title="Delete the task"
-                                description="Are you sure to delete this task?"
-                                cancelText="No"
-                                onConfirm={() => {
-                                    handleDelete(record.key as string);
-                                    if (!record.newData) {
-                                        deleteUser();
-                                    }
-                                }}
-                            >
-                                <Button
-                                    key={record.key}
-                                    type="primary"
-                                    danger
-                                    onClick={() =>
-                                        setTableRowId(record.key as string)
-                                    }
-                                    loading={isLoadingDeleteUser}
-                                >
-                                    <a>Delete</a>
-                                </Button>
                             </Popconfirm>
-                        </Space>
-                    </>
-                ) : null,
+                        ) : (
+                            <Button
+                                key={record.key}
+                                type="primary"
+                                disabled
+                                loading={
+                                    isLoadingCreateUser || isLoadingUpdateUser
+                                }
+                            >
+                                <a>Save</a>
+                            </Button>
+                        )}
+                        <Popconfirm
+                            key={record.key}
+                            title="Delete the task"
+                            description="Are you sure to delete this task?"
+                            cancelText="No"
+                            onConfirm={() => {
+                                handleDelete(record.key as string);
+                                if (!record.newData) {
+                                    deleteUser();
+                                }
+                            }}
+                        >
+                            <Button
+                                key={record.key}
+                                type="primary"
+                                danger
+                                onClick={() =>
+                                    setTableRowId(record.key as string)
+                                }
+                                loading={isLoadingDeleteUser}
+                            >
+                                <a>Delete</a>
+                            </Button>
+                        </Popconfirm>
+                    </Space>
+                </>
+            ),
         },
     ];
+
     if (
         isError ||
         isErrorCreateUser ||
@@ -234,7 +232,6 @@ const UserPage = () => {
     }
     return (
         <>
-            <h1>User Page</h1>
             {contextNotif}
             <Skeleton
                 loading={
@@ -245,7 +242,6 @@ const UserPage = () => {
                 }
             >
                 <InvTableEditComponent
-                    globalKey={"userEditContext"}
                     columns={columns}
                     items={userData?.data}
                     addButtonLabel="+ Add User"

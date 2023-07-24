@@ -31,9 +31,7 @@ export interface SupplierDataInterface {
 }
 const SupplierPage = () => {
     const { openNotificationWithIcon, contextNotif } = InvNotif();
-    const { dataSource, handleDelete, handleSave } = useHandleEditTable(
-        "supplierEditContext"
-    );
+    const { handleDelete, handleSave } = useHandleEditTable();
     const [supplierError, setError] = useState<CustomError | null>(null);
     const [tableRowId, setTableRowId] = useState("");
 
@@ -59,7 +57,7 @@ const SupplierPage = () => {
         },
     });
 
-    const SupplierData: SupplierDataInterface | undefined = data;
+    const SupplierData: SupplierDataInterface = data;
 
     const {
         mutate: createSupplier,
@@ -122,47 +120,34 @@ const SupplierPage = () => {
             title: "Action",
             dataIndex: "Action",
             width: "20%",
-            render: (_, record: AnyObject) =>
-                dataSource.supplierEditContext.length >= 1 ? (
-                    <>
-                        <Space>
-                            {record.edited ? (
-                                <Popconfirm
-                                    key={record.key as string}
-                                    title="Save into database?"
-                                    onConfirm={() => {
-                                        handleSave(record);
-                                        if (record.newData) {
-                                            createSupplier({
-                                                name: record.name as string,
-                                            });
-                                        } else {
-                                            const updatedSupplier: DataType = {
-                                                name: record.name as string,
-                                            };
-                                            updateSupplier(updatedSupplier);
-                                        }
-                                    }}
-                                >
-                                    <Button
-                                        key={record.key as string}
-                                        type="primary"
-                                        onClick={() =>
-                                            setTableRowId(record.key as string)
-                                        }
-                                        loading={
-                                            isLoadingCreateSupplier ||
-                                            isLoadingUpdateSupplier
-                                        }
-                                    >
-                                        <a>Save</a>
-                                    </Button>
-                                </Popconfirm>
-                            ) : (
+            render: (_, record: AnyObject) => (
+                // dataSource.supplierEditContext.length >= 1 ? (
+                <>
+                    <Space>
+                        {record.edited ? (
+                            <Popconfirm
+                                key={record.key as string}
+                                title="Save into database?"
+                                onConfirm={() => {
+                                    handleSave(record);
+                                    if (record.newData) {
+                                        createSupplier({
+                                            name: record.name as string,
+                                        });
+                                    } else {
+                                        const updatedSupplier: DataType = {
+                                            name: record.name as string,
+                                        };
+                                        updateSupplier(updatedSupplier);
+                                    }
+                                }}
+                            >
                                 <Button
                                     key={record.key as string}
                                     type="primary"
-                                    disabled
+                                    onClick={() =>
+                                        setTableRowId(record.key as string)
+                                    }
                                     loading={
                                         isLoadingCreateSupplier ||
                                         isLoadingUpdateSupplier
@@ -170,34 +155,47 @@ const SupplierPage = () => {
                                 >
                                     <a>Save</a>
                                 </Button>
-                            )}
-                            <Popconfirm
-                                key={record.key as string}
-                                title="Delete the task"
-                                description="Are you sure to delete this task?"
-                                cancelText="No"
-                                onConfirm={() => {
-                                    handleDelete(record.key as string);
-                                    if (!record.newData) {
-                                        deleteSupplier();
-                                    }
-                                }}
-                            >
-                                <Button
-                                    key={record.key as string}
-                                    type="primary"
-                                    danger
-                                    onClick={() =>
-                                        setTableRowId(record.key as string)
-                                    }
-                                    loading={isLoadingDeleteSupplier}
-                                >
-                                    <a>Delete</a>
-                                </Button>
                             </Popconfirm>
-                        </Space>
-                    </>
-                ) : null,
+                        ) : (
+                            <Button
+                                key={record.key as string}
+                                type="primary"
+                                disabled
+                                loading={
+                                    isLoadingCreateSupplier ||
+                                    isLoadingUpdateSupplier
+                                }
+                            >
+                                <a>Save</a>
+                            </Button>
+                        )}
+                        <Popconfirm
+                            key={record.key as string}
+                            title="Delete the task"
+                            description="Are you sure to delete this task?"
+                            cancelText="No"
+                            onConfirm={() => {
+                                handleDelete(record.key as string);
+                                if (!record.newData) {
+                                    deleteSupplier();
+                                }
+                            }}
+                        >
+                            <Button
+                                key={record.key as string}
+                                type="primary"
+                                danger
+                                onClick={() =>
+                                    setTableRowId(record.key as string)
+                                }
+                                loading={isLoadingDeleteSupplier}
+                            >
+                                <a>Delete</a>
+                            </Button>
+                        </Popconfirm>
+                    </Space>
+                </>
+            ),
         },
     ];
     if (
@@ -221,7 +219,6 @@ const SupplierPage = () => {
                 }
             >
                 <InvTableEditComponent
-                    globalKey="supplierEditContext"
                     columns={columns}
                     items={SupplierData?.data}
                     addButtonLabel="+ Add Supplier"

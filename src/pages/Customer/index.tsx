@@ -35,9 +35,7 @@ export interface CustomerDataInterface {
 }
 const CustomerPage = () => {
     const { openNotificationWithIcon, contextNotif } = InvNotif();
-    const { dataSource, handleDelete, handleSave } = useHandleEditTable(
-        "customerEditContext"
-    );
+    const { handleDelete, handleSave } = useHandleEditTable();
     const [customerError, setError] = useState<CustomError | null>(null);
     const [tableRowId, setTableRowId] = useState("");
 
@@ -65,7 +63,7 @@ const CustomerPage = () => {
         },
     });
 
-    const customerData: CustomerDataInterface | undefined = data;
+    const customerData: CustomerDataInterface = data;
 
     const {
         mutate: createCustomer,
@@ -138,51 +136,37 @@ const CustomerPage = () => {
             title: "Action",
             dataIndex: "Action",
             width: "20%",
-            render: (_, record: AnyObject) =>
-                dataSource.customerEditContext.length >= 1 ? (
-                    <>
-                        <Space>
-                            {record.edited ? (
-                                <Popconfirm
-                                    key={record.key}
-                                    title="Save into database?"
-                                    onConfirm={() => {
-                                        handleSave(record);
-                                        if (record.newData) {
-                                            createCustomer({
-                                                name: record.name,
-                                                address: record.address,
-                                                // subCustomer: record.subCustomer,
-                                            });
-                                        } else {
-                                            const updatedCustomer: DataType = {
-                                                name: record.name,
-                                                address: record.address,
-                                                // subCustomer: record.subCustomer,
-                                            };
-                                            updateCustomer(updatedCustomer);
-                                        }
-                                    }}
-                                >
-                                    <Button
-                                        key={record.key}
-                                        type="primary"
-                                        onClick={() =>
-                                            setTableRowId(record.key as string)
-                                        }
-                                        loading={
-                                            isLoadingCreateCustomer ||
-                                            isLoadingUpdateCustomer
-                                        }
-                                    >
-                                        <a>Save</a>
-                                    </Button>
-                                </Popconfirm>
-                            ) : (
+            render: (_, record: AnyObject) => (
+                <>
+                    <Space>
+                        {record.edited ? (
+                            <Popconfirm
+                                key={record.key}
+                                title="Save into database?"
+                                onConfirm={() => {
+                                    handleSave(record);
+                                    if (record.newData) {
+                                        createCustomer({
+                                            name: record.name,
+                                            address: record.address,
+                                            // subCustomer: record.subCustomer,
+                                        });
+                                    } else {
+                                        const updatedCustomer: DataType = {
+                                            name: record.name,
+                                            address: record.address,
+                                            // subCustomer: record.subCustomer,
+                                        };
+                                        updateCustomer(updatedCustomer);
+                                    }
+                                }}
+                            >
                                 <Button
                                     key={record.key}
                                     type="primary"
-                                    disabled
+                                    onClick={() =>
+                                        setTableRowId(record.key as string)
+                                    }
                                     loading={
                                         isLoadingCreateCustomer ||
                                         isLoadingUpdateCustomer
@@ -190,34 +174,47 @@ const CustomerPage = () => {
                                 >
                                     <a>Save</a>
                                 </Button>
-                            )}
-                            <Popconfirm
-                                key={record.key}
-                                title="Delete the task"
-                                description="Are you sure to delete this task?"
-                                cancelText="No"
-                                onConfirm={() => {
-                                    handleDelete(record.key as string);
-                                    if (!record.newData) {
-                                        deleteCustomer();
-                                    }
-                                }}
-                            >
-                                <Button
-                                    key={record.key}
-                                    type="primary"
-                                    danger
-                                    onClick={() =>
-                                        setTableRowId(record.key as string)
-                                    }
-                                    loading={isLoadingDeleteCustomer}
-                                >
-                                    <a>Delete</a>
-                                </Button>
                             </Popconfirm>
-                        </Space>
-                    </>
-                ) : null,
+                        ) : (
+                            <Button
+                                key={record.key}
+                                type="primary"
+                                disabled
+                                loading={
+                                    isLoadingCreateCustomer ||
+                                    isLoadingUpdateCustomer
+                                }
+                            >
+                                <a>Save</a>
+                            </Button>
+                        )}
+                        <Popconfirm
+                            key={record.key}
+                            title="Delete the task"
+                            description="Are you sure to delete this task?"
+                            cancelText="No"
+                            onConfirm={() => {
+                                handleDelete(record.key as string);
+                                if (!record.newData) {
+                                    deleteCustomer();
+                                }
+                            }}
+                        >
+                            <Button
+                                key={record.key}
+                                type="primary"
+                                danger
+                                onClick={() =>
+                                    setTableRowId(record.key as string)
+                                }
+                                loading={isLoadingDeleteCustomer}
+                            >
+                                <a>Delete</a>
+                            </Button>
+                        </Popconfirm>
+                    </Space>
+                </>
+            ),
         },
     ];
     if (
@@ -241,7 +238,6 @@ const CustomerPage = () => {
                 }
             >
                 <InvTableEditComponent
-                    globalKey="customerEditContext"
                     columns={columns}
                     items={customerData?.data}
                     addButtonLabel="+ Add Customer"

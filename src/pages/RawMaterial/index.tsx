@@ -38,9 +38,7 @@ export interface RawMaterialDataInterface {
 
 const RawMaterialPage = () => {
     const { openNotificationWithIcon, contextNotif } = InvNotif();
-    const { dataSource, handleDelete, handleSave } = useHandleEditTable(
-        "rawMaterialEditContext"
-    );
+    const { handleDelete, handleSave } = useHandleEditTable();
     const [rawMaterialError, setError] = useState<CustomError | null>(null);
     const [tableRowId, setTableRowId] = useState("");
 
@@ -69,7 +67,7 @@ const RawMaterialPage = () => {
         },
     });
 
-    const RawMaterialData: RawMaterialDataInterface | undefined = data;
+    const RawMaterialData: RawMaterialDataInterface = data;
 
     const {
         mutate: createRawMaterial,
@@ -147,56 +145,40 @@ const RawMaterialPage = () => {
             title: "Action",
             dataIndex: "Action",
             width: "20%",
-            render: (_, record: AnyObject) =>
-                dataSource.rawMaterialEditContext.length >= 1 ? (
-                    <>
-                        <Space>
-                            {record.edited ? (
-                                <Popconfirm
-                                    key={record.key}
-                                    title="Save into database?"
-                                    onConfirm={() => {
-                                        handleSave(record);
-                                        if (record.newData) {
-                                            createRawMaterial({
-                                                name: record.name,
-                                                SKU: record.SKU,
-                                                qty: record.qty,
-                                                unit: record.unit,
-                                            });
-                                        } else {
-                                            const updatedRawMaterial: DataType =
-                                                {
-                                                    name: record.name,
-                                                    SKU: record.SKU,
-                                                    qty: record.qty,
-                                                    unit: record.unit,
-                                                };
-                                            updateRawMaterial(
-                                                updatedRawMaterial
-                                            );
-                                        }
-                                    }}
-                                >
-                                    <Button
-                                        key={record.key}
-                                        type="primary"
-                                        onClick={() =>
-                                            setTableRowId(record.key as string)
-                                        }
-                                        loading={
-                                            isLoadingCreateRawMaterial ||
-                                            isLoadingUpdateRawMaterial
-                                        }
-                                    >
-                                        <a>Save</a>
-                                    </Button>
-                                </Popconfirm>
-                            ) : (
+            render: (_, record: AnyObject) => (
+                // dataSource.rawMaterialEditContext.length >= 1 ? (
+                <>
+                    <Space>
+                        {record.edited ? (
+                            <Popconfirm
+                                key={record.key}
+                                title="Save into database?"
+                                onConfirm={() => {
+                                    handleSave(record);
+                                    if (record.newData) {
+                                        createRawMaterial({
+                                            name: record.name,
+                                            SKU: record.SKU,
+                                            qty: record.qty,
+                                            unit: record.unit,
+                                        });
+                                    } else {
+                                        const updatedRawMaterial: DataType = {
+                                            name: record.name,
+                                            SKU: record.SKU,
+                                            qty: record.qty,
+                                            unit: record.unit,
+                                        };
+                                        updateRawMaterial(updatedRawMaterial);
+                                    }
+                                }}
+                            >
                                 <Button
                                     key={record.key}
                                     type="primary"
-                                    disabled
+                                    onClick={() =>
+                                        setTableRowId(record.key as string)
+                                    }
                                     loading={
                                         isLoadingCreateRawMaterial ||
                                         isLoadingUpdateRawMaterial
@@ -204,34 +186,47 @@ const RawMaterialPage = () => {
                                 >
                                     <a>Save</a>
                                 </Button>
-                            )}
-                            <Popconfirm
-                                key={record.key}
-                                title="Delete the task"
-                                description="Are you sure to delete this task?"
-                                cancelText="No"
-                                onConfirm={() => {
-                                    handleDelete(record.key as string);
-                                    if (!record.newData) {
-                                        deleteRawMaterial();
-                                    }
-                                }}
-                            >
-                                <Button
-                                    key={record.key}
-                                    type="primary"
-                                    danger
-                                    onClick={() =>
-                                        setTableRowId(record.key as string)
-                                    }
-                                    loading={isLoadingDeleteRawMaterial}
-                                >
-                                    <a>Delete</a>
-                                </Button>
                             </Popconfirm>
-                        </Space>
-                    </>
-                ) : null,
+                        ) : (
+                            <Button
+                                key={record.key}
+                                type="primary"
+                                disabled
+                                loading={
+                                    isLoadingCreateRawMaterial ||
+                                    isLoadingUpdateRawMaterial
+                                }
+                            >
+                                <a>Save</a>
+                            </Button>
+                        )}
+                        <Popconfirm
+                            key={record.key}
+                            title="Delete the task"
+                            description="Are you sure to delete this task?"
+                            cancelText="No"
+                            onConfirm={() => {
+                                handleDelete(record.key as string);
+                                if (!record.newData) {
+                                    deleteRawMaterial();
+                                }
+                            }}
+                        >
+                            <Button
+                                key={record.key}
+                                type="primary"
+                                danger
+                                onClick={() =>
+                                    setTableRowId(record.key as string)
+                                }
+                                loading={isLoadingDeleteRawMaterial}
+                            >
+                                <a>Delete</a>
+                            </Button>
+                        </Popconfirm>
+                    </Space>
+                </>
+            ),
         },
     ];
     if (
@@ -255,7 +250,6 @@ const RawMaterialPage = () => {
                 }
             >
                 <InvTableEditComponent
-                    globalKey="rawMaterialEditContext"
                     columns={columns}
                     items={RawMaterialData?.data}
                     addButtonLabel="+ Add Raw Material"

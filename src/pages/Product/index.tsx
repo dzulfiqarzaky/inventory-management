@@ -37,8 +37,7 @@ export interface ProductDataInterface {
 }
 const ProductPage = () => {
     const { openNotificationWithIcon, contextNotif } = InvNotif();
-    const { dataSource, handleDelete, handleSave } =
-        useHandleEditTable("productEditContext");
+    const { handleDelete, handleSave } = useHandleEditTable();
     const [productError, setError] = useState<CustomError | null>(null);
     const [tableRowId, setTableRowId] = useState("");
 
@@ -67,7 +66,7 @@ const ProductPage = () => {
         },
     });
 
-    const productData: ProductDataInterface | undefined = data;
+    const productData: ProductDataInterface = data;
 
     const {
         mutate: createProduct,
@@ -144,53 +143,39 @@ const ProductPage = () => {
         {
             title: "Action",
             dataIndex: "Action",
-            render: (_, record: AnyObject) =>
-                dataSource.productEditContext.length >= 1 ? (
-                    <>
-                        <Space>
-                            {record.edited ? (
-                                <Popconfirm
-                                    key={record.key}
-                                    title="Save into database?"
-                                    onConfirm={() => {
-                                        handleSave(record);
-                                        if (record.newData) {
-                                            createProduct({
-                                                name: record.name,
-                                                SKU: record.SKU,
-                                                qty: record.qty,
-                                                unit: record.unit,
-                                            });
-                                        } else {
-                                            const updatedProduct: DataType = {
-                                                name: record.name,
-                                                SKU: record.SKU,
-                                                qty: record.qty,
-                                                unit: record.unit,
-                                            };
-                                            updateProduct(updatedProduct);
-                                        }
-                                    }}
-                                >
-                                    <Button
-                                        key={record.key}
-                                        type="primary"
-                                        onClick={() =>
-                                            setTableRowId(record.key as string)
-                                        }
-                                        loading={
-                                            isLoadingCreateProduct ||
-                                            isLoadingUpdateProduct
-                                        }
-                                    >
-                                        <a>Save</a>
-                                    </Button>
-                                </Popconfirm>
-                            ) : (
+            render: (_, record: AnyObject) => (
+                <>
+                    <Space>
+                        {record.edited ? (
+                            <Popconfirm
+                                key={record.key}
+                                title="Save into database?"
+                                onConfirm={() => {
+                                    handleSave(record);
+                                    if (record.newData) {
+                                        createProduct({
+                                            name: record.name,
+                                            SKU: record.SKU,
+                                            qty: record.qty,
+                                            unit: record.unit,
+                                        });
+                                    } else {
+                                        const updatedProduct: DataType = {
+                                            name: record.name,
+                                            SKU: record.SKU,
+                                            qty: record.qty,
+                                            unit: record.unit,
+                                        };
+                                        updateProduct(updatedProduct);
+                                    }
+                                }}
+                            >
                                 <Button
                                     key={record.key}
                                     type="primary"
-                                    disabled
+                                    onClick={() =>
+                                        setTableRowId(record.key as string)
+                                    }
                                     loading={
                                         isLoadingCreateProduct ||
                                         isLoadingUpdateProduct
@@ -198,34 +183,47 @@ const ProductPage = () => {
                                 >
                                     <a>Save</a>
                                 </Button>
-                            )}
-                            <Popconfirm
-                                key={record.key}
-                                title="Delete the task"
-                                description="Are you sure to delete this task?"
-                                cancelText="No"
-                                onConfirm={() => {
-                                    handleDelete(record.key as string);
-                                    if (!record.newData) {
-                                        deleteProduct();
-                                    }
-                                }}
-                            >
-                                <Button
-                                    key={record.key}
-                                    type="primary"
-                                    danger
-                                    onClick={() =>
-                                        setTableRowId(record.key as string)
-                                    }
-                                    loading={isLoadingDeleteProduct}
-                                >
-                                    <a>Delete</a>
-                                </Button>
                             </Popconfirm>
-                        </Space>
-                    </>
-                ) : null,
+                        ) : (
+                            <Button
+                                key={record.key}
+                                type="primary"
+                                disabled
+                                loading={
+                                    isLoadingCreateProduct ||
+                                    isLoadingUpdateProduct
+                                }
+                            >
+                                <a>Save</a>
+                            </Button>
+                        )}
+                        <Popconfirm
+                            key={record.key}
+                            title="Delete the task"
+                            description="Are you sure to delete this task?"
+                            cancelText="No"
+                            onConfirm={() => {
+                                handleDelete(record.key as string);
+                                if (!record.newData) {
+                                    deleteProduct();
+                                }
+                            }}
+                        >
+                            <Button
+                                key={record.key}
+                                type="primary"
+                                danger
+                                onClick={() =>
+                                    setTableRowId(record.key as string)
+                                }
+                                loading={isLoadingDeleteProduct}
+                            >
+                                <a>Delete</a>
+                            </Button>
+                        </Popconfirm>
+                    </Space>
+                </>
+            ),
         },
     ];
     if (
@@ -249,7 +247,6 @@ const ProductPage = () => {
                 }
             >
                 <InvTableEditComponent
-                    globalKey="productEditContext"
                     columns={columns}
                     items={productData?.data}
                     addButtonLabel="+ Add Product"

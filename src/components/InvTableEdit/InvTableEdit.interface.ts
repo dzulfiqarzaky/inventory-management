@@ -1,21 +1,15 @@
 import { Table } from "antd";
-import { UserInterface } from "../../pages/User";
-import { SupplierInterface } from "../../pages/Supplier";
+import { UserInterface } from "../../pages/User/user.interface";
+import { SupplierInterface } from "../../pages/Supplier/supplier.interface";
 import { RawMaterialInterface } from "../../pages/RawMaterial";
 import { ProductInterface } from "../../pages/Product";
 import { CustomerInterface } from "../../pages/Customer";
 
 type CommonDataType = {
-    // key?: React.Key;
     newData?: boolean;
     edited?: boolean;
 };
 
-// type UserDataType = Partial<UserInterface>;
-// type SupplierDataType = Partial<SupplierInterface>;
-// type RawMaterialDataType = Partial<RawMaterialInterface>;
-// type ProductDataType = Partial<ProductInterface>;
-// type CustomerDataType = Partial<CustomerInterface>;
 type UserDataType = UserInterface;
 type SupplierDataType = SupplierInterface;
 type RawMaterialDataType = RawMaterialInterface;

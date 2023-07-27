@@ -1,15 +1,16 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/restrict-template-expressions */
 import { useMutation, useQuery } from "@tanstack/react-query";
 import api from "../../lib/client";
-import { DataType } from "../../components/InvTableEdit/InvTableEdit.interface";
+import { UserBaseInterface } from "../../pages/User/user.interface";
 
 export interface UserApiInterface {
-    user_id?: string;
     options?: object;
     query?: {
         search?: string;
     };
+}
+
+export interface UserApiWithIdInterface extends UserApiInterface {
+    user_id: string;
 }
 
 const fetchUsers = async ({ query = {} }: UserApiInterface) =>
@@ -22,7 +23,7 @@ const fetchUsers = async ({ query = {} }: UserApiInterface) =>
             sortOrder: "desc",
             ...query,
         },
-    }).then((data) => data.data);
+    }).then((res) => res.data);
 
 const useUsers = ({ query = {}, options = {} }: UserApiInterface) =>
     useQuery(["users", query], () => fetchUsers({ query }), {
@@ -30,17 +31,17 @@ const useUsers = ({ query = {}, options = {} }: UserApiInterface) =>
         ...options,
     });
 
-const fetchUser = async ({ user_id }: UserApiInterface) =>
+const fetchUser = async ({ user_id }: UserApiWithIdInterface) =>
     api(`/user/${user_id}`).then((data) => data);
 
-const useUser = ({ user_id, options = {} }: UserApiInterface) =>
+const useUser = ({ user_id, options = {} }: UserApiWithIdInterface) =>
     useQuery(["user", user_id], () => fetchUser({ user_id }), {
         ...options,
     });
 
 const useCreateUser = ({ options = {} }: UserApiInterface) => {
     return useMutation(
-        (newData: Partial<DataType>) =>
+        (newData: UserBaseInterface) =>
             api("/user", {
                 method: "POST",
                 data: newData,
@@ -49,9 +50,9 @@ const useCreateUser = ({ options = {} }: UserApiInterface) => {
     );
 };
 
-const useUpdateUser = ({ user_id, options = {} }: UserApiInterface) => {
+const useUpdateUser = ({ user_id, options = {} }: UserApiWithIdInterface) => {
     return useMutation(
-        (updates: Partial<DataType>) =>
+        (updates: Partial<UserBaseInterface>) =>
             api(`/user/${user_id}`, {
                 method: "PUT",
                 data: updates,
@@ -60,7 +61,7 @@ const useUpdateUser = ({ user_id, options = {} }: UserApiInterface) => {
     );
 };
 
-const useDeleteUser = ({ user_id, options = {} }: UserApiInterface) => {
+const useDeleteUser = ({ user_id, options = {} }: UserApiWithIdInterface) => {
     return useMutation(
         () =>
             api(`/user/${user_id}`, {

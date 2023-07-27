@@ -15,6 +15,9 @@ export interface UserApiInterface extends UserBaseInterface {
 }
 
 export interface UserDataInterface {
+    data: UserInterface[];
+}
+export interface UserDataApiInterface {
     data: UserApiInterface[];
 }
 

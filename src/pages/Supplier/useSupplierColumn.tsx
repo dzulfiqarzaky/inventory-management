@@ -1,40 +1,30 @@
+import { Button, Popconfirm, Space } from "antd";
 import { AnyObject } from "antd/es/_util/type";
 import {
     ColumnTypes,
     DataType,
 } from "../../components/InvTableEdit/InvTableEdit.interface";
-import { Button, Popconfirm, Space } from "antd";
-import { UserColumnInterface } from "./user.interface";
+import { SupplierColumnInterface } from "./supplier.interface";
 
-const useUserColumns = ({
-    createUser,
-    updateUser,
-    deleteUser,
+const useSupplierColumn = ({
+    createSupplier,
+    updateSupplier,
+    deleteSupplier,
     handleSaveGlobal,
     handleDelete,
     setTableRowId,
-    isLoadingUpdateUser,
-    isLoadingCreateUser,
-    isLoadingDeleteUser,
-}: UserColumnInterface) => {
+    isLoadingUpdateSupplier,
+    isLoadingCreateSupplier,
+    isLoadingDeleteSupplier,
+}: SupplierColumnInterface) => {
     const columns: (ColumnTypes[number] & {
         editable?: boolean;
         dataIndex: string;
     })[] = [
         {
-            title: "username",
-            dataIndex: "username",
-            width: "30%",
-            editable: true,
-        },
-        {
-            title: "password",
-            dataIndex: "password",
-            editable: true,
-        },
-        {
-            title: "role",
-            dataIndex: "role",
+            title: "name",
+            dataIndex: "name",
+            // width: "80%",
             editable: true,
         },
         {
@@ -42,6 +32,7 @@ const useUserColumns = ({
             dataIndex: "Action",
             width: "20%",
             render: (_, record: AnyObject) => (
+                // dataSource.supplierEditContext.length >= 1 ? (
                 <>
                     <Space>
                         {record.edited ? (
@@ -49,34 +40,28 @@ const useUserColumns = ({
                                 key={record.key as string}
                                 title="Save into database?"
                                 onConfirm={() => {
+                                    handleSaveGlobal(record as DataType);
                                     if (record.newData) {
-                                        createUser({
-                                            username: record.username as string,
-                                            password: record.password as string,
-                                            role: record.role as string,
+                                        createSupplier({
+                                            name: record.name as string,
                                         });
                                     } else {
-                                        const updatedUser: Partial<DataType> = {
-                                            username: record.username as string,
-                                            role: record.role as string,
+                                        const updatedSupplier = {
+                                            name: record.name as string,
                                         };
-                                        record.password !== "xxxxxx"
-                                            ? (updatedUser.password =
-                                                  record.password as string)
-                                            : null;
-                                        updateUser(updatedUser);
+                                        updateSupplier(updatedSupplier);
                                     }
-                                    handleSaveGlobal(record as DataType);
                                 }}
                             >
                                 <Button
+                                    key={record.key as string}
                                     type="primary"
                                     onClick={() =>
                                         setTableRowId(record.key as string)
                                     }
                                     loading={
-                                        isLoadingCreateUser ||
-                                        isLoadingUpdateUser
+                                        isLoadingCreateSupplier ||
+                                        isLoadingUpdateSupplier
                                     }
                                 >
                                     <a>Save</a>
@@ -84,10 +69,12 @@ const useUserColumns = ({
                             </Popconfirm>
                         ) : (
                             <Button
+                                key={record.key as string}
                                 type="primary"
                                 disabled
                                 loading={
-                                    isLoadingCreateUser || isLoadingUpdateUser
+                                    isLoadingCreateSupplier ||
+                                    isLoadingUpdateSupplier
                                 }
                             >
                                 <a>Save</a>
@@ -101,17 +88,18 @@ const useUserColumns = ({
                             onConfirm={() => {
                                 handleDelete(record.key as string);
                                 if (!record.newData) {
-                                    deleteUser();
+                                    deleteSupplier();
                                 }
                             }}
                         >
                             <Button
+                                key={record.key as string}
                                 type="primary"
                                 danger
                                 onClick={() =>
                                     setTableRowId(record.key as string)
                                 }
-                                loading={isLoadingDeleteUser}
+                                loading={isLoadingDeleteSupplier}
                             >
                                 <a>Delete</a>
                             </Button>
@@ -124,4 +112,4 @@ const useUserColumns = ({
     return columns;
 };
 
-export default useUserColumns;
+export default useSupplierColumn;

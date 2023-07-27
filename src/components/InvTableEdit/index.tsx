@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import React, { useEffect } from "react";
 import { Button, Table } from "antd";
 import InvEditableRow from "./InvRowEdit";
@@ -7,9 +6,8 @@ import type { FormInstance } from "antd/es/form";
 import { ColumnTypes, DataType } from "./InvTableEdit.interface";
 import useHandleEditTable from "./useHandleTableEdit";
 
-export const EditableContext = React.createContext<FormInstance<any> | null>(
-    null
-);
+export const EditableContext =
+    React.createContext<FormInstance<unknown> | null>(null);
 
 const InvTableEditComponent: React.FC<{
     columns: (ColumnTypes[number] & {
@@ -20,15 +18,13 @@ const InvTableEditComponent: React.FC<{
     addButtonLabel: string;
 }> = ({ columns, items, addButtonLabel }) => {
     const { dataSource, handleAdd, handleSave, setDataSource } =
-        // useHandleEditTable(globalKey as keyof GlobalStateType);
         useHandleEditTable();
 
     useEffect(() => {
         if (items) {
-            // setDataSource({ ...dataSource, [globalKey]: items });
             setDataSource(items);
         }
-    }, []);
+    }, [items, setDataSource]);
 
     const columnsComponent = columns.map((col) => {
         if (!col.editable) {
@@ -68,7 +64,6 @@ const InvTableEditComponent: React.FC<{
                     record?.newData ? "editable-row" : "editable-row new-row"
                 }
                 bordered
-                // dataSource={dataSource[globalKey as keyof GlobalStateType]}
                 dataSource={dataSource}
                 columns={columnsComponent as ColumnTypes}
             />

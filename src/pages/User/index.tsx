@@ -15,6 +15,7 @@ import { CustomError } from "../Login";
 import useUserColumns from "./useUserColumns";
 import {
     UserApiInterface,
+    UserDataApiInterface,
     UserDataInterface,
     UserInterface,
 } from "./user.interface";
@@ -29,7 +30,7 @@ const UserPage = () => {
             onError: (err: CustomError) => {
                 setError(err);
             },
-            select: (data: UserDataInterface) => {
+            select: (data: UserDataApiInterface) => {
                 const mappedData: UserInterface[] = data.data.map(
                     (user: UserApiInterface) => {
                         return {
@@ -40,7 +41,7 @@ const UserPage = () => {
                         };
                     }
                 );
-                return { data: mappedData };
+                return { data: [...mappedData] };
             },
         },
         query: {
@@ -48,7 +49,7 @@ const UserPage = () => {
         },
     });
 
-    const userData: { data: UserInterface[] } = data;
+    const userData: UserDataInterface = data;
 
     const {
         mutate: createUser,

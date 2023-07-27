@@ -1,10 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { AnyObject } from "antd/es/_util/type";
 import InvTableEditComponent from "../../components/InvTableEdit";
-import {
-    ColumnTypes,
-    DataType,
-} from "../../components/InvTableEdit/InvTableEdit.interface";
 import {
     useCreateProduct,
     useDeleteProduct,
@@ -12,32 +7,22 @@ import {
     useProducts,
 } from "../../hooks/product/useProduct";
 import useHandleEditTable from "../../components/InvTableEdit/useHandleTableEdit";
-import { Button, Popconfirm, Skeleton, Space } from "antd";
+import { Skeleton } from "antd";
 import { queryClient } from "../../main";
 import { useState } from "react";
 import InvNotif from "../../components/InvNotif";
 import { CustomError } from "../Login";
+import {
+    ProductApiInterface,
+    ProductDataApiInterface,
+    ProductDataInterface,
+    ProductInterface,
+} from "./product.interface";
+import useProductColumns from "./useProductColumns";
 
-export interface ProductInterface {
-    key: string;
-    name: string;
-    SKU: string;
-    unit: string;
-    qty: string;
-}
-export interface ProductApiInterface {
-    _id: string;
-    name: string;
-    SKU: string;
-    unit: string;
-    qty: string;
-}
-export interface ProductDataInterface {
-    data: ProductApiInterface[];
-}
 const ProductPage = () => {
     const { openNotificationWithIcon, contextNotif } = InvNotif();
-    const { handleDelete, handleSave } = useHandleEditTable();
+    const { handleDelete, handleSaveGlobal } = useHandleEditTable();
     const [productError, setError] = useState<CustomError | null>(null);
     const [tableRowId, setTableRowId] = useState("");
 
@@ -46,7 +31,7 @@ const ProductPage = () => {
             onError: (err: CustomError) => {
                 setError(err);
             },
-            select: (data: ProductDataInterface) => {
+            select: (data: ProductDataApiInterface) => {
                 const mappedData: ProductInterface[] = data.data.map(
                     (product: ProductApiInterface) => {
                         return {
@@ -66,7 +51,8 @@ const ProductPage = () => {
         },
     });
 
-    const productData: ProductDataInterface = data;
+    const productData: ProductDataInterface =
+        data as unknown as ProductDataInterface;
 
     const {
         mutate: createProduct,
@@ -115,117 +101,17 @@ const ProductPage = () => {
         },
     });
 
-    const columns: (ColumnTypes[number] & {
-        editable?: boolean;
-        dataIndex: string;
-    })[] = [
-        {
-            title: "SKU",
-            dataIndex: "SKU",
-            editable: true,
-        },
-        {
-            title: "name",
-            dataIndex: "name",
-            width: "30%",
-            editable: true,
-        },
-        {
-            title: "unit",
-            dataIndex: "unit",
-            editable: true,
-        },
-        {
-            title: "qty",
-            dataIndex: "qty",
-            editable: true,
-        },
-        {
-            title: "Action",
-            dataIndex: "Action",
-            render: (_, record: AnyObject) => (
-                <>
-                    <Space>
-                        {record.edited ? (
-                            <Popconfirm
-                                key={record.key}
-                                title="Save into database?"
-                                onConfirm={() => {
-                                    handleSave(record);
-                                    if (record.newData) {
-                                        createProduct({
-                                            name: record.name,
-                                            SKU: record.SKU,
-                                            qty: record.qty,
-                                            unit: record.unit,
-                                        });
-                                    } else {
-                                        const updatedProduct: DataType = {
-                                            name: record.name,
-                                            SKU: record.SKU,
-                                            qty: record.qty,
-                                            unit: record.unit,
-                                        };
-                                        updateProduct(updatedProduct);
-                                    }
-                                }}
-                            >
-                                <Button
-                                    key={record.key}
-                                    type="primary"
-                                    onClick={() =>
-                                        setTableRowId(record.key as string)
-                                    }
-                                    loading={
-                                        isLoadingCreateProduct ||
-                                        isLoadingUpdateProduct
-                                    }
-                                >
-                                    <a>Save</a>
-                                </Button>
-                            </Popconfirm>
-                        ) : (
-                            <Button
-                                key={record.key}
-                                type="primary"
-                                disabled
-                                loading={
-                                    isLoadingCreateProduct ||
-                                    isLoadingUpdateProduct
-                                }
-                            >
-                                <a>Save</a>
-                            </Button>
-                        )}
-                        <Popconfirm
-                            key={record.key}
-                            title="Delete the task"
-                            description="Are you sure to delete this task?"
-                            cancelText="No"
-                            onConfirm={() => {
-                                handleDelete(record.key as string);
-                                if (!record.newData) {
-                                    deleteProduct();
-                                }
-                            }}
-                        >
-                            <Button
-                                key={record.key}
-                                type="primary"
-                                danger
-                                onClick={() =>
-                                    setTableRowId(record.key as string)
-                                }
-                                loading={isLoadingDeleteProduct}
-                            >
-                                <a>Delete</a>
-                            </Button>
-                        </Popconfirm>
-                    </Space>
-                </>
-            ),
-        },
-    ];
+    const columns = useProductColumns({
+        createProduct,
+        updateProduct,
+        deleteProduct,
+        handleSaveGlobal,
+        handleDelete,
+        setTableRowId,
+        isLoadingUpdateProduct,
+        isLoadingCreateProduct,
+        isLoadingDeleteProduct,
+    });
     if (
         isError ||
         isErrorCreateProduct ||

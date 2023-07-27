@@ -1,16 +1,22 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import api from "../../lib/client";
-import { DataType } from "../../components/InvTableEdit/InvTableEdit.interface";
+import {
+    ProductBaseInterface,
+    ProductDataApiInterface,
+} from "../../pages/Product/product.interface";
 
-export interface ProductApiInterface {
-    product_id?: string;
-    options?: {};
+export interface ProductHooksApiInterface {
+    options?: object;
     query?: {
         search?: string;
     };
 }
 
-const fetchProducts = async ({ query = {} }: ProductApiInterface) =>
+export interface ProductApiWithIdInterface extends ProductHooksApiInterface {
+    product_id: string;
+}
+
+const fetchProducts = async ({ query = {} }: ProductHooksApiInterface) =>
     api(`/product`, {
         params: {
             search: "",
@@ -20,25 +26,25 @@ const fetchProducts = async ({ query = {} }: ProductApiInterface) =>
             sortOrder: "desc",
             ...query,
         },
-    }).then((data) => data.data);
+    }).then((res: ProductDataApiInterface) => res.data);
 
-const useProducts = ({ query = {}, options = {} }: ProductApiInterface) =>
+const useProducts = ({ query = {}, options = {} }: ProductHooksApiInterface) =>
     useQuery(["products", query], () => fetchProducts({ query }), {
         keepPreviousData: true,
         ...options,
     });
 
-const fetchProduct = async ({ product_id }: ProductApiInterface) =>
+const fetchProduct = async ({ product_id }: ProductApiWithIdInterface) =>
     api(`/product/${product_id}`).then((data) => data);
 
-const useProduct = ({ product_id, options = {} }: ProductApiInterface) =>
+const useProduct = ({ product_id, options = {} }: ProductApiWithIdInterface) =>
     useQuery(["product", product_id], () => fetchProduct({ product_id }), {
         ...options,
     });
 
-const useCreateProduct = ({ options = {} }: ProductApiInterface) => {
+const useCreateProduct = ({ options = {} }: ProductHooksApiInterface) => {
     return useMutation(
-        (newData: DataType) =>
+        (newData: ProductBaseInterface) =>
             api("/product", {
                 method: "POST",
                 data: newData,
@@ -50,9 +56,9 @@ const useCreateProduct = ({ options = {} }: ProductApiInterface) => {
 const useUpdateProduct = ({
     product_id,
     options = {},
-}: ProductApiInterface) => {
+}: ProductApiWithIdInterface) => {
     return useMutation(
-        (updates: DataType) =>
+        (updates: Partial<ProductBaseInterface>) =>
             api(`/product/${product_id}`, {
                 method: "PUT",
                 data: updates,
@@ -64,7 +70,7 @@ const useUpdateProduct = ({
 const useDeleteProduct = ({
     product_id,
     options = {},
-}: ProductApiInterface) => {
+}: ProductApiWithIdInterface) => {
     return useMutation(
         () =>
             api(`/product/${product_id}`, {

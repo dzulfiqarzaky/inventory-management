@@ -1,16 +1,24 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import api from "../../lib/client";
-import { DataType } from "../../components/InvTableEdit/InvTableEdit.interface";
+import {
+    RawMaterialApiDataInterface,
+    RawMaterialBaseInterface,
+} from "../../pages/RawMaterial/rawMaterial.interface";
 
-export interface RawMaterialApiInterface {
-    rawMaterial_id?: string;
-    options?: {};
+export interface RawMaterialHooksApiInterface {
+    options?: object;
     query?: {
         search?: string;
     };
 }
 
-const fetchRawMaterials = async ({ query = {} }: RawMaterialApiInterface) =>
+export interface RawMaterialWithIdInterface
+    extends RawMaterialHooksApiInterface {
+    rawMaterial_id: string;
+}
+const fetchRawMaterials = async ({
+    query = {},
+}: RawMaterialHooksApiInterface) =>
     api(`/raw-material`, {
         params: {
             search: "",
@@ -20,24 +28,26 @@ const fetchRawMaterials = async ({ query = {} }: RawMaterialApiInterface) =>
             sortOrder: "desc",
             ...query,
         },
-    }).then((data) => data.data);
+    }).then((res: RawMaterialApiDataInterface) => res.data);
 
 const useRawMaterials = ({
     query = {},
     options = {},
-}: RawMaterialApiInterface) =>
+}: RawMaterialHooksApiInterface) =>
     useQuery(["raw-materials", query], () => fetchRawMaterials({ query }), {
         keepPreviousData: true,
         ...options,
     });
 
-const fetchRawMaterial = async ({ rawMaterial_id }: RawMaterialApiInterface) =>
+const fetchRawMaterial = async ({
+    rawMaterial_id,
+}: RawMaterialWithIdInterface) =>
     api(`/raw-material/${rawMaterial_id}`).then((data) => data);
 
 const useRawMaterial = ({
     rawMaterial_id,
     options = {},
-}: RawMaterialApiInterface) =>
+}: RawMaterialWithIdInterface) =>
     useQuery(
         ["raw-material", rawMaterial_id],
         () => fetchRawMaterial({ rawMaterial_id }),
@@ -46,9 +56,11 @@ const useRawMaterial = ({
         }
     );
 
-const useCreateRawMaterial = ({ options = {} }: RawMaterialApiInterface) => {
+const useCreateRawMaterial = ({
+    options = {},
+}: RawMaterialHooksApiInterface) => {
     return useMutation(
-        (newData: DataType) =>
+        (newData: RawMaterialBaseInterface) =>
             api("/raw-material", {
                 method: "POST",
                 data: newData,
@@ -60,9 +72,9 @@ const useCreateRawMaterial = ({ options = {} }: RawMaterialApiInterface) => {
 const useUpdateRawMaterial = ({
     rawMaterial_id,
     options = {},
-}: RawMaterialApiInterface) => {
+}: RawMaterialWithIdInterface) => {
     return useMutation(
-        (updates: DataType) =>
+        (updates: Partial<RawMaterialBaseInterface>) =>
             api(`/raw-material/${rawMaterial_id}`, {
                 method: "PUT",
                 data: updates,
@@ -74,7 +86,7 @@ const useUpdateRawMaterial = ({
 const useDeleteRawMaterial = ({
     rawMaterial_id,
     options = {},
-}: RawMaterialApiInterface) => {
+}: RawMaterialWithIdInterface) => {
     return useMutation(
         () =>
             api(`/raw-material/${rawMaterial_id}`, {

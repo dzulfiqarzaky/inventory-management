@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import InvTableEditComponent from "../../components/InvTableEdit";
 import {
     useCreateSupplier,

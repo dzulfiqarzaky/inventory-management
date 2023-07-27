@@ -2,7 +2,7 @@ import { Table } from "antd";
 import { UserInterface } from "../../pages/User/user.interface";
 import { SupplierInterface } from "../../pages/Supplier/supplier.interface";
 import { RawMaterialInterface } from "../../pages/RawMaterial/rawMaterial.interface";
-import { ProductInterface } from "../../pages/Product";
+import { ProductInterface } from "../../pages/Product/product.interface";
 import { CustomerInterface } from "../../pages/Customer/customer.interface";
 
 type CommonDataType = {

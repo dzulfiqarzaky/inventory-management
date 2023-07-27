@@ -1,6 +1,9 @@
 import { Button, Popconfirm, Space } from "antd";
 import { AnyObject } from "antd/es/_util/type";
-import { ColumnTypes } from "../../components/InvTableEdit/InvTableEdit.interface";
+import {
+    ColumnTypes,
+    DataType,
+} from "../../components/InvTableEdit/InvTableEdit.interface";
 import { RawMaterialColumnInterface } from "./rawMaterial.interface";
 
 const useRawMaterialColumns = ({
@@ -52,7 +55,7 @@ const useRawMaterialColumns = ({
                                 key={record.key as string}
                                 title="Save into database?"
                                 onConfirm={() => {
-                                    handleSaveGlobal(record);
+                                    handleSaveGlobal(record as DataType);
                                     if (record.newData) {
                                         createRawMaterial({
                                             name: record.name as string,

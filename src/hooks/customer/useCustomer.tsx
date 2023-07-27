@@ -1,16 +1,21 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import api from "../../lib/client";
-import { DataType } from "../../components/InvTableEdit/InvTableEdit.interface";
+import BaseCustomerInterface, {
+    CustomerDataApiInterface,
+} from "../../pages/Customer/customer.interface";
 
-export interface CustomerApiInterface {
-    customer_id?: string;
-    options?: {};
+export interface CustomerHooksApiInterface {
+    options?: object;
     query?: {
         search?: string;
     };
 }
 
-const fetchCustomers = async ({ query = {} }: CustomerApiInterface) =>
+export interface CustomerApiWithIdInterface extends CustomerHooksApiInterface {
+    customer_id: string;
+}
+
+const fetchCustomers = async ({ query = {} }: CustomerHooksApiInterface) =>
     api(`/customer`, {
         params: {
             search: "",
@@ -20,25 +25,31 @@ const fetchCustomers = async ({ query = {} }: CustomerApiInterface) =>
             sortOrder: "desc",
             ...query,
         },
-    }).then((data) => data.data);
+    }).then((data: CustomerDataApiInterface) => data.data);
 
-const useCustomers = ({ query = {}, options = {} }: CustomerApiInterface) =>
+const useCustomers = ({
+    query = {},
+    options = {},
+}: CustomerHooksApiInterface) =>
     useQuery(["customers", query], () => fetchCustomers({ query }), {
         keepPreviousData: true,
         ...options,
     });
 
-const fetchCustomer = async ({ customer_id }: CustomerApiInterface) =>
+const fetchCustomer = async ({ customer_id }: CustomerApiWithIdInterface) =>
     api(`/customer/${customer_id}`).then((data) => data);
 
-const useCustomer = ({ customer_id, options = {} }: CustomerApiInterface) =>
+const useCustomer = ({
+    customer_id,
+    options = {},
+}: CustomerApiWithIdInterface) =>
     useQuery(["customer", customer_id], () => fetchCustomer({ customer_id }), {
         ...options,
     });
 
-const useCreateCustomer = ({ options = {} }: CustomerApiInterface) => {
+const useCreateCustomer = ({ options = {} }: CustomerHooksApiInterface) => {
     return useMutation(
-        (newData: DataType) =>
+        (newData: BaseCustomerInterface) =>
             api("/customer", {
                 method: "POST",
                 data: newData,
@@ -50,9 +61,9 @@ const useCreateCustomer = ({ options = {} }: CustomerApiInterface) => {
 const useUpdateCustomer = ({
     customer_id,
     options = {},
-}: CustomerApiInterface) => {
+}: CustomerApiWithIdInterface) => {
     return useMutation(
-        (updates: DataType) =>
+        (updates: Partial<BaseCustomerInterface>) =>
             api(`/customer/${customer_id}`, {
                 method: "PUT",
                 data: updates,
@@ -64,7 +75,7 @@ const useUpdateCustomer = ({
 const useDeleteCustomer = ({
     customer_id,
     options = {},
-}: CustomerApiInterface) => {
+}: CustomerApiWithIdInterface) => {
     return useMutation(
         () =>
             api(`/customer/${customer_id}`, {

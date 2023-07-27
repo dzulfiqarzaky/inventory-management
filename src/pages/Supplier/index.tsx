@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import InvTableEditComponent from "../../components/InvTableEdit";
 import {
     useCreateSupplier,
@@ -48,7 +47,8 @@ const SupplierPage = () => {
         },
     });
 
-    const SupplierData: SupplierDataInterface = data;
+    const SupplierData: SupplierDataInterface =
+        data as unknown as SupplierDataInterface;
 
     const {
         mutate: createSupplier,

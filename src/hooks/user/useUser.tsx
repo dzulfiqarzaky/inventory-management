@@ -1,19 +1,22 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import api from "../../lib/client";
-import { UserBaseInterface } from "../../pages/User/user.interface";
+import {
+    UserBaseInterface,
+    UserDataApiInterface,
+} from "../../pages/User/user.interface";
 
-export interface UserApiInterface {
+export interface UserHooksApiInterface {
     options?: object;
     query?: {
         search?: string;
     };
 }
 
-export interface UserApiWithIdInterface extends UserApiInterface {
+export interface UserApiWithIdInterface extends UserHooksApiInterface {
     user_id: string;
 }
 
-const fetchUsers = async ({ query = {} }: UserApiInterface) =>
+const fetchUsers = async ({ query = {} }: UserHooksApiInterface) =>
     api(`/user`, {
         params: {
             search: "",
@@ -23,9 +26,9 @@ const fetchUsers = async ({ query = {} }: UserApiInterface) =>
             sortOrder: "desc",
             ...query,
         },
-    }).then((res) => res.data);
+    }).then((res: UserDataApiInterface) => res.data);
 
-const useUsers = ({ query = {}, options = {} }: UserApiInterface) =>
+const useUsers = ({ query = {}, options = {} }: UserHooksApiInterface) =>
     useQuery(["users", query], () => fetchUsers({ query }), {
         keepPreviousData: true,
         ...options,
@@ -39,7 +42,7 @@ const useUser = ({ user_id, options = {} }: UserApiWithIdInterface) =>
         ...options,
     });
 
-const useCreateUser = ({ options = {} }: UserApiInterface) => {
+const useCreateUser = ({ options = {} }: UserHooksApiInterface) => {
     return useMutation(
         (newData: UserBaseInterface) =>
             api("/user", {

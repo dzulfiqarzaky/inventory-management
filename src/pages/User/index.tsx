@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import InvTableEditComponent from "../../components/InvTableEdit";
 import {
     useCreateUser,
@@ -49,7 +48,7 @@ const UserPage = () => {
         },
     });
 
-    const userData: UserDataInterface = data;
+    const userData: UserDataInterface = data as unknown as UserDataInterface;
 
     const {
         mutate: createUser,

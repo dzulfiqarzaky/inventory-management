@@ -3,7 +3,7 @@ import { UserInterface } from "../../pages/User/user.interface";
 import { SupplierInterface } from "../../pages/Supplier/supplier.interface";
 import { RawMaterialInterface } from "../../pages/RawMaterial";
 import { ProductInterface } from "../../pages/Product";
-import { CustomerInterface } from "../../pages/Customer";
+import { CustomerInterface } from "../../pages/Customer/customer.interface";
 
 type CommonDataType = {
     newData?: boolean;

@@ -2,21 +2,21 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import api from "../../lib/client";
 import {
     BaseSuplierInterface,
-    SupplierDataInterface,
-} from "../../pages/Supplier";
+    SupplierDataApiInterface,
+} from "../../pages/Supplier/supplier.interface";
 
-export interface SupplierApiInterface {
+export interface SupplierHooksApiInterface {
     options?: object;
     query?: {
         search?: string;
     };
 }
 
-export interface SuplierApiWithIdInterface extends SupplierApiInterface {
+export interface SuplierApiWithIdInterface extends SupplierHooksApiInterface {
     supplier_id: string;
 }
 
-const fetchSuppliers = async ({ query = {} }: SupplierApiInterface) =>
+const fetchSuppliers = async ({ query = {} }: SupplierHooksApiInterface) =>
     api(`/supplier`, {
         params: {
             search: "",
@@ -26,9 +26,12 @@ const fetchSuppliers = async ({ query = {} }: SupplierApiInterface) =>
             sortOrder: "desc",
             ...query,
         },
-    }).then((data: SupplierDataInterface) => data.data);
+    }).then((data: SupplierDataApiInterface) => data.data);
 
-const useSuppliers = ({ query = {}, options = {} }: SupplierApiInterface) =>
+const useSuppliers = ({
+    query = {},
+    options = {},
+}: SupplierHooksApiInterface) =>
     useQuery(["suppliers", query], () => fetchSuppliers({ query }), {
         keepPreviousData: true,
         ...options,
@@ -45,7 +48,7 @@ const useSupplier = ({
         ...options,
     });
 
-const useCreateSupplier = ({ options = {} }: SupplierApiInterface) => {
+const useCreateSupplier = ({ options = {} }: SupplierHooksApiInterface) => {
     return useMutation(
         (newData: BaseSuplierInterface) =>
             api("/supplier", {

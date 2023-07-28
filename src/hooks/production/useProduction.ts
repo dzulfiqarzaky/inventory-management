@@ -1,17 +1,22 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { useMutation, useQuery } from "@tanstack/react-query";
 import api from "../../lib/client";
-import { DataType } from "../../components/InvTableEdit/InvTableEdit.interface";
+import { ProductionBaseInterface } from "../../pages/Production/production.interface";
 
-export interface ProductionApiInterface {
-    production_id?: string;
-    options?: {};
+export interface ProductionHooksApiInterface {
+    options?: object;
     query?: {
         search?: string;
     };
 }
 
-const fetchProductions = async ({ query = {} }: ProductionApiInterface) =>
-    api(`/production`, {
+export interface ProductionApiWithIdInterface
+    extends ProductionHooksApiInterface {
+    production_id: string;
+}
+
+const fetchProductions = async ({ query = {} }: ProductionHooksApiInterface) =>
+    api(`/product/production`, {
         params: {
             search: "",
             limit: 10,
@@ -20,21 +25,26 @@ const fetchProductions = async ({ query = {} }: ProductionApiInterface) =>
             sortOrder: "desc",
             ...query,
         },
-    }).then((data) => data.data);
+    }).then((res) => res.data);
 
-const useProductions = ({ query = {}, options = {} }: ProductionApiInterface) =>
+const useProductions = ({
+    query = {},
+    options = {},
+}: ProductionHooksApiInterface) =>
     useQuery(["productions", query], () => fetchProductions({ query }), {
         keepPreviousData: true,
         ...options,
     });
 
-const fetchProduction = async ({ production_id }: ProductionApiInterface) =>
-    api(`/production/${production_id}`).then((data) => data);
+const fetchProduction = async ({
+    production_id,
+}: ProductionApiWithIdInterface) =>
+    api(`/product/production/${production_id}`).then((data) => data);
 
 const useProduction = ({
     production_id,
     options = {},
-}: ProductionApiInterface) =>
+}: ProductionApiWithIdInterface) =>
     useQuery(
         ["production", production_id],
         () => fetchProduction({ production_id }),
@@ -43,10 +53,10 @@ const useProduction = ({
         }
     );
 
-const useCreateProduction = ({ options = {} }: ProductionApiInterface) => {
+const useCreateProduction = ({ options = {} }: ProductionHooksApiInterface) => {
     return useMutation(
-        (newData: DataType) =>
-            api("/production", {
+        (newData: ProductionBaseInterface) =>
+            api("/product/production", {
                 method: "POST",
                 data: newData,
             }),
@@ -57,10 +67,10 @@ const useCreateProduction = ({ options = {} }: ProductionApiInterface) => {
 const useUpdateProduction = ({
     production_id,
     options = {},
-}: ProductionApiInterface) => {
+}: ProductionApiWithIdInterface) => {
     return useMutation(
-        (updates: DataType) =>
-            api(`/production/${production_id}`, {
+        (updates: Partial<ProductionBaseInterface>) =>
+            api(`/product/production/${production_id}`, {
                 method: "PUT",
                 data: updates,
             }),
@@ -71,10 +81,10 @@ const useUpdateProduction = ({
 const useDeleteProduction = ({
     production_id,
     options = {},
-}: ProductionApiInterface) => {
+}: ProductionApiWithIdInterface) => {
     return useMutation(
         () =>
-            api(`/production/${production_id}`, {
+            api(`/product/production/${production_id}`, {
                 method: "Delete",
             }),
         { ...options }

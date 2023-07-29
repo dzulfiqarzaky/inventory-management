@@ -1,60 +1,80 @@
 import { Col, DatePicker, Form, Input, Row, Button, Space, Select } from "antd";
 
-type Props = {
-    data: any;
-    onSubmit(values: any, onSubmit: any): void;
-    isLoading: boolean | undefined;
-};
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import { useState } from "react";
 import moment from "moment";
+
+type InitialValue = {
+    productionDate: string;
+    note: string;
+    products: {
+        product: string;
+        qty: string;
+        uom: string;
+    }[];
+};
+
+type Props = {
+    product: { data: { label: string; value: string; uom: string }[] };
+    initialVal?: InitialValue; // Make `initialVal` optional
+    onSubmit(values: any, onSubmit: any): void;
+    isLoading?: boolean;
+};
 
 const onFinish = (values: any, data, onSubmit) => {
     console.log("Received values of form:", values);
     console.log("Received values of form:", data);
     const newValues = {
-        productionDate: moment(values.dateTime.$d).format(
+        productionDate: moment(values.productionDate.$d).format(
             "YYYY-MM-DDTHH:mm:ss.SSSZ"
         ),
-        note: values.description,
+        note: values.note,
         productItems: values.product.map((prod) => ({
             product: prod.product,
             uom: data.find((el) => el.value === prod.product)?.uom,
-            qty: prod.amount,
+            qty: prod.qty,
         })),
     };
-    console.log(newValues, 1112);
     onSubmit(newValues);
 };
 
 const ProductionForm = (props: Props) => {
+    const { Option } = Select;
     const initialUoms = Array.from(
-        { length: props?.data?.data.length },
+        { length: props?.product?.data.length },
         () => "kg"
     );
     const [uoms, setUoms] = useState<string[]>(initialUoms);
-
+    const [addNew, setAddnew] = useState<number | null>(null);
     const handleProductChange = (index: number, value: any) => {
         const updatedUoms = [...uoms];
-        updatedUoms[index] = props?.data?.data?.find(
+        updatedUoms[index] = props?.product?.data?.find(
             (el) => el.value === value
         )?.uom;
         setUoms(updatedUoms);
     };
+
+    const initialValues = props?.initialVal || {
+        productionDate: "",
+        note: "",
+        products: [],
+    };
+    console.log(initialValues, 998);
     return (
         <Form
             layout="vertical"
             name="dynamic_form_nest_item"
             onFinish={(values) =>
-                onFinish(values, props.data.data, props.onSubmit)
+                onFinish(values, props.product.data, props.onSubmit)
             }
+            initialValues={initialValues}
             style={{ maxWidth: 800 }}
             autoComplete="off"
         >
             <Row gutter={16}>
                 <Col span={24}>
                     <Form.Item
-                        name="dateTime"
+                        name="productionDate"
                         label="DateTime"
                         rules={[
                             {
@@ -75,7 +95,7 @@ const ProductionForm = (props: Props) => {
             <Row gutter={16}>
                 <Col span={24}>
                     <Form.Item
-                        name="description"
+                        name="note"
                         label="Description"
                         rules={[
                             {
@@ -91,7 +111,10 @@ const ProductionForm = (props: Props) => {
                     </Form.Item>
                 </Col>
             </Row>
-            <Form.List name="product">
+            <Form.List
+                name="product"
+                initialValue={props?.initialVal?.products}
+            >
                 {(fields, { add, remove }) => (
                     <>
                         {fields.map(({ key, name, ...restField }) => (
@@ -102,8 +125,8 @@ const ProductionForm = (props: Props) => {
                             >
                                 <Form.Item
                                     {...restField}
-                                    label="amount"
-                                    name={[name, "amount"]}
+                                    label="qty"
+                                    name={[name, "qty"]}
                                     rules={[
                                         {
                                             required: true,
@@ -132,7 +155,7 @@ const ProductionForm = (props: Props) => {
                                             handleProductChange(key, value)
                                         }
                                     >
-                                        {props?.data?.data?.map((item) => (
+                                        {props?.product?.data?.map((item) => (
                                             <Option
                                                 key={item.value}
                                                 value={item.value}
@@ -151,7 +174,15 @@ const ProductionForm = (props: Props) => {
                                     <Input
                                         disabled
                                         placeholder="kg, ton, etc"
-                                        value={uoms[key]}
+                                        value={
+                                            addNew === key
+                                                ? uoms[key]
+                                                : !props?.initialVal
+                                                ? uoms[key]
+                                                : props?.initialVal?.products[
+                                                      key
+                                                  ].uom
+                                        }
                                     />
                                 </Form.Item>
                                 <MinusCircleOutlined
@@ -162,7 +193,10 @@ const ProductionForm = (props: Props) => {
                         <Form.Item>
                             <Button
                                 type="dashed"
-                                onClick={() => add()}
+                                onClick={() => {
+                                    add();
+                                    setAddnew(fields.length);
+                                }}
                                 block
                                 icon={<PlusOutlined />}
                             >

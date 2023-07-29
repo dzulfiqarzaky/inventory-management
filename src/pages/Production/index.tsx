@@ -29,9 +29,10 @@ const ProductionPage = () => {
     const { openNotificationWithIcon, contextNotif } = InvNotif();
     const [userError, setError] = useState<CustomError | null>(null);
     const [tableRowId, setTableRowId] = useState<string>("");
-    const [open, setOpen] = useState({
-        add: false,
+    const [openCreate, setOpenCreate] = useState(false);
+    const [openEdit, setOpenEdit] = useState({
         edit: false,
+        data: {},
     });
 
     const { data, isLoading, isError } = useProductions({
@@ -40,7 +41,16 @@ const ProductionPage = () => {
                 setError(err);
             },
             select: (data: ProductionDataApiInterface) => {
-                console.log(data, 9123);
+                const initialData = data.data.map((production) => ({
+                    id: production._id,
+                    productionDate: moment(production.productionDate),
+                    note: production.note,
+                    products: production.productItems.map((prodItem) => ({
+                        product: prodItem.product._id,
+                        qty: prodItem.qty,
+                        uom: prodItem.uom,
+                    })),
+                }));
                 const mappedData = data.data.flatMap(
                     (production: ProductionApiInterface) => {
                         return production.productItems.map((item) => ({
@@ -54,7 +64,7 @@ const ProductionPage = () => {
                         }));
                     }
                 );
-                return { data: [...mappedData] };
+                return { data: [...mappedData], initialData };
             },
         },
         query: {
@@ -89,10 +99,8 @@ const ProductionPage = () => {
         },
     });
 
-    console.log(open, "<<<<");
-
     const productionData: ProductionDataInterface =
-        data as unknown as ProductionDataInterface;
+        data?.data as unknown as ProductionDataInterface;
 
     const {
         mutate: createProduction,
@@ -104,6 +112,7 @@ const ProductionPage = () => {
                 setError(err);
             },
             onSuccess: async () => {
+                setOpenCreate(false);
                 await queryClient.invalidateQueries(["productions"]);
             },
         },
@@ -120,6 +129,7 @@ const ProductionPage = () => {
                 setError(err);
             },
             onSuccess: async () => {
+                setOpenEdit((prev) => ({ ...prev, edit: false }));
                 await queryClient.invalidateQueries(["productions"]);
             },
         },
@@ -155,12 +165,14 @@ const ProductionPage = () => {
     ) {
         openNotificationWithIcon("error", userError);
     }
+
     const columns = useProductionColumn(
-        data?.data || [],
+        productionData || [],
         deleteProduction,
         setTableRowId,
         isLoadingDeleteProduction,
-        setOpen
+        setOpenEdit,
+        data?.initialData || []
     );
 
     return (
@@ -175,9 +187,7 @@ const ProductionPage = () => {
                     <h1>Production Page</h1>
                     <Button
                         type="primary"
-                        onClick={() =>
-                            setOpen((prev) => ({ ...prev, add: true }))
-                        }
+                        onClick={() => setOpenCreate(true)}
                         icon={<PlusOutlined />}
                     >
                         {"Add New Production"}
@@ -186,7 +196,7 @@ const ProductionPage = () => {
                     {!isLoading && columns && (
                         <Table
                             columns={columns}
-                            dataSource={data?.data}
+                            dataSource={productionData}
                             // onChange={onChange}
                         />
                     )}
@@ -195,26 +205,31 @@ const ProductionPage = () => {
             <Drawer
                 title={"Add New Product"}
                 width={720}
-                onClose={() => setOpen((prev) => ({ ...prev, add: false }))}
-                open={open.add}
+                destroyOnClose
+                onClose={() => setOpenCreate(false)}
+                open={openCreate}
                 bodyStyle={{ paddingBottom: 80 }}
             >
                 <ProductionForm
                     onSubmit={createProduction}
                     isLoading={isLoadingProduct}
-                    data={dataProduct}
+                    product={dataProduct}
                 />
             </Drawer>
             <Drawer
                 title={"Edit Product"}
                 width={720}
-                onClose={() => setOpen((prev) => ({ ...prev, edit: false }))}
-                open={open.edit}
+                destroyOnClose
+                onClose={() =>
+                    setOpenEdit((prev) => ({ ...prev, edit: false }))
+                }
+                open={openEdit.edit}
                 bodyStyle={{ paddingBottom: 80 }}
             >
                 <ProductionForm
                     isLoading={isLoadingProduct}
-                    data={dataProduct}
+                    product={dataProduct}
+                    initialVal={openEdit.data}
                     onSubmit={updateProduction}
                 />
             </Drawer>

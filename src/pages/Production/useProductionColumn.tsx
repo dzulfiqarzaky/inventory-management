@@ -1,7 +1,3 @@
-/* eslint-disable @typescript-eslint/restrict-plus-operands */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { ColumnsType } from "antd/es/table";
 import { ProductionInterface } from "./production.interface";
 import { AnyObject } from "antd/es/_util/type";
@@ -12,7 +8,8 @@ const useProductionColumn = (
     deleteProduction,
     setTableRowId,
     isLoadingDeleteProduction,
-    setOpen
+    setOpenEdit,
+    initialData
 ) => {
     const keyCounts = new Map();
     if (convertedData.length === 0) return;
@@ -101,12 +98,16 @@ const useProductionColumn = (
                                 <Button
                                     type="primary"
                                     loading={false}
-                                    onClick={() =>
-                                        setOpen((prev) => ({
-                                            ...prev,
+                                    onClick={() => {
+                                        setTableRowId(record.key as string);
+                                        setOpenEdit({
                                             edit: true,
-                                        }))
-                                    }
+                                            data: initialData.filter(
+                                                (production) =>
+                                                    production.id === record.key
+                                            )[0],
+                                        });
+                                    }}
                                 >
                                     <a>Edit</a>
                                 </Button>

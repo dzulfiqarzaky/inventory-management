@@ -1,5 +1,4 @@
 import { Space } from "antd";
-import InvDrawer from "../../components/InvDrawer";
 import InvTable, { DataType } from "../../components/InvTable";
 
 type Props = {};
@@ -40,8 +39,6 @@ const RawMaterialTransactionPage = (props: Props) => {
                 style={{ display: "flex" }}
             >
                 <h1>Raw Material Transaction Page</h1>
-                <InvDrawer />
-                <InvTable data={data} />
             </Space>
         </>
     );

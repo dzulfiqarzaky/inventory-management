@@ -1,6 +1,10 @@
+export interface Product {
+    _id: string;
+    name: string;
+}
 export interface ProductItem {
     _id: string;
-    product: string;
+    product: Product;
     qty: string;
 }
 export interface ProductionBaseInterface {
@@ -9,8 +13,8 @@ export interface ProductionBaseInterface {
     productItems: ProductItem[];
 }
 export interface ProductionInterface extends ProductionBaseInterface {
+    product: string;
     key: string;
-    total: number;
 }
 export interface ProductionApiInterface extends ProductionBaseInterface {
     _id: string;

@@ -1,9 +1,7 @@
 import { Space } from "antd";
-import InvDrawer from "../../components/InvDrawer";
-import InvTable, { DataType } from "../../components/InvTable";
 
 type Props = {};
-const data: DataType[] = [
+const data = [
     {
         key: "1",
         name: "John Brown",
@@ -40,8 +38,6 @@ const PurchaseOrderPage = (props: Props) => {
                 style={{ display: "flex" }}
             >
                 <h1>Purchase Order Page</h1>
-                <InvDrawer />
-                <InvTable data={data} />
             </Space>
         </>
     );

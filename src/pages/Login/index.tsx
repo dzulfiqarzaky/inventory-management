@@ -58,7 +58,6 @@ const LoginPage = () => {
                 setError(err);
             },
             onSuccess: ({ data }: User) => {
-                console.log(data.access_token, 1112);
                 localStorage.setItem("access_token", data.access_token);
                 localStorage.setItem("username", data.username);
                 localStorage.setItem("role", data.role);

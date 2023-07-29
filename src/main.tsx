@@ -64,13 +64,12 @@ const getComponentPage = (componentName: any) => {
         case "Bill":
             return BillPage;
         default:
-            // eslint-disable-next-line react/display-name
             return () => <div>404</div>;
     }
 };
 const generateNestedRoutes = (children: any[]) => {
     return children.map((child) => {
-        const ComponentPage = getComponentPage(child.label);
+        const ComponentPage = getComponentPage(child?.label);
         return (
             <Route
                 key={child.label}

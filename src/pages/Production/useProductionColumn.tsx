@@ -1,95 +1,86 @@
+/* eslint-disable @typescript-eslint/restrict-plus-operands */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { ColumnsType } from "antd/es/table";
-import { ProductItem, ProductionInterface } from "./production.interface";
+import { ProductionInterface } from "./production.interface";
 import { AnyObject } from "antd/es/_util/type";
-import { Button, Popconfirm, Space, Tag } from "antd";
-import { convertToISODate } from "../../lib/useDateSorter";
+import { Button, Popconfirm, Space } from "antd";
 
-const useProductionColumn = () => {
+const useProductionColumn = (convertedData: any[]) => {
+    const keyCounts = new Map();
+    if (convertedData.length === 0) return;
+    convertedData.forEach((data) => {
+        const key = data.key;
+        if (keyCounts.has(key)) {
+            keyCounts.set(key, keyCounts.get(key) + 1);
+        } else {
+            keyCounts.set(key, 1);
+        }
+    });
+
+    const calculateRender = (
+        text: string,
+        record: ProductionInterface,
+        index: number
+    ) => {
+        const key = record.key;
+        if (index === 0) {
+            const count = keyCounts.get(key) || 1;
+            return { children: text, props: { rowSpan: count } };
+        }
+        if (convertedData[index - 1].key !== key) {
+            const count = keyCounts.get(key) || 1;
+            return { children: text, props: { rowSpan: count } };
+        }
+        return null;
+    };
+
+    const calculateOnCell = (_: ProductionInterface, index?: number) => {
+        if (index) {
+            const key = convertedData[index].key;
+            if (index > 0 && convertedData[index - 1].key === key) {
+                return { rowSpan: 0 };
+            }
+        }
+        return { rowSpan: 1 };
+    };
+
     const columns: ColumnsType<ProductionInterface> = [
         {
             title: "Production Date",
             dataIndex: "productionDate",
-            sorter: (a, b) => {
-                const isoDate1 = convertToISODate(a.productionDate);
-                const isoDate2 = convertToISODate(b.productionDate);
-                return isoDate1.localeCompare(isoDate2);
-            },
-            filterSearch: true,
-        },
-        {
-            title: "Total",
-            dataIndex: "total",
-            sorter: (a, b) => a.total - b.total,
+            render: calculateRender,
+            onCell: calculateOnCell,
         },
         {
             title: "Products",
             dataIndex: "productItems",
-            width: "30%",
-            sorter: (a, b) => a.total - b.total,
-            filters: [
+            width: "50%",
+            children: [
                 {
-                    text: "keripik pedas",
-                    value: "keripik pedas",
+                    title: "Amount",
+                    dataIndex: "qty",
+                    key: "amount",
                 },
                 {
-                    text: "keripik asin",
-                    value: "keripik asin",
+                    title: "Product",
+                    dataIndex: "product",
+                    key: "product",
                 },
                 {
-                    text: "keripik manis",
-                    value: "keripik manis",
-                },
-                {
-                    text: "keripik udang",
-                    value: "keripik udang",
+                    title: "Uom",
+                    dataIndex: "uom",
+                    key: "uom",
                 },
             ],
-            onFilter: (value: string | number | boolean, record) => {
-                if (typeof value === "string") {
-                    const found = record.productItems.find(
-                        (product) => product.product === value
-                    );
-                    console.log(found, 9999);
-                    if (found) return true;
-                }
-                return false;
-            },
-            render: (_, record: AnyObject) => {
-                const onPreventMouseDown = (
-                    event: React.MouseEvent<HTMLSpanElement>
-                ) => {
-                    event.preventDefault();
-                    event.stopPropagation();
-                };
-                const color = {
-                    "keripik pedas": "red",
-                    "keripik asin": "gold",
-                    "keripik manis": "pink",
-                    "keripik udang": "orange",
-                };
-                type colorKey = keyof typeof color;
-
-                return (
-                    <>
-                        {record.productItems.map((product: ProductItem) => (
-                            <Tag
-                                color={color[product.product as colorKey]}
-                                onMouseDown={onPreventMouseDown}
-                                // style={{ marginRight: 3 }}
-                            >
-                                {`${product.product}: ${product.qty}`}
-                            </Tag>
-                        ))}
-                    </>
-                );
-            },
         },
         {
             title: "Notes",
             dataIndex: "note",
-            width: "40%",
+            width: "30%",
+            render: calculateRender,
+            onCell: calculateOnCell,
         },
         {
             title: "Action",
@@ -132,6 +123,7 @@ const useProductionColumn = () => {
             ),
         },
     ];
+
     return columns;
 };
 

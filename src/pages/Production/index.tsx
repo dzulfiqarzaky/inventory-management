@@ -1,7 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { Skeleton, Space } from "antd";
-import InvDrawer from "../../components/InvDrawer";
-import InvTable, { DataType } from "../../components/InvTable";
+import { Button, Drawer, Skeleton, Space, Table } from "antd";
 import {
     useCreateProduction,
     useDeleteProduction,
@@ -19,87 +17,24 @@ import {
     ProductionInterface,
 } from "./production.interface";
 import { queryClient } from "../../main";
-import useLocalTime from "../../lib/useLocalTime";
+import ProductionForm from "./ProductionForm";
+import moment from "moment";
+import { PlusOutlined } from "@ant-design/icons";
+import { useProducts } from "../../hooks/product/useProduct";
+import {
+    ProductApiInterface,
+    ProductDataApiInterface,
+    ProductInterface,
+} from "../Product/product.interface";
 
 const ProductionPage = () => {
     const { openNotificationWithIcon, contextNotif } = InvNotif();
     const [userError, setError] = useState<CustomError | null>(null);
     const [tableRowId, setTableRowId] = useState<string>("");
-
-    const dataColDum: DataType[] = [
-        {
-            key: "64bd14c3e2a081f547225c56",
-            productionDate: useLocalTime("2023-06-15T00:00:00.000Z"),
-            note: "This is a note",
-            productItems: [
-                {
-                    product: "keripik pedas",
-                    qty: "1000",
-                    _id: "64bd14c3e2a081f547225c57",
-                },
-                {
-                    product: "keripik asin",
-                    qty: "1000",
-                    _id: "64bd14c3e2a081f547225c58",
-                },
-            ],
-            total: 2000,
-        },
-        {
-            key: "64bd14c3e2a081f547225c561",
-            productionDate: useLocalTime("2023-05-15T00:00:00.000Z"),
-            note: "This is a note 1",
-            productItems: [
-                {
-                    product: "keripik pedas",
-                    qty: "2000",
-                    _id: "64bd14c3e2a081f547225c571",
-                },
-                {
-                    product: "keripik asin",
-                    qty: "1000",
-                    _id: "64bd14c3e2a081f547225c582",
-                },
-            ],
-            total: 3000,
-        },
-        {
-            key: "64bd14c3e2a081f547225c562",
-            productionDate: useLocalTime("2023-07-15T00:00:00.000Z"),
-            note: "This is a note 2",
-            productItems: [
-                {
-                    product: "keripik pedas",
-                    qty: "2000",
-                    _id: "64bd14c3e2a081f547225c572",
-                },
-                {
-                    product: "keripik asin",
-                    qty: "3000",
-                    _id: "64bd14c3e2a081f547225c582",
-                },
-            ],
-            total: 5000,
-        },
-        {
-            key: "64bd14c3e2a081f547225c563",
-            productionDate: useLocalTime("2023-07-15T00:00:00.000Z"),
-            note: "This is a note 3",
-            productItems: [
-                {
-                    product: "keripik manis",
-                    qty: "3000",
-                    _id: "64bd14c3e2a081f547225c573",
-                },
-                {
-                    product: "keripik udang",
-                    qty: "3000",
-                    _id: "64bd14c3e2a081f547225c583",
-                },
-            ],
-            total: 6000,
-        },
-    ];
+    const [open, setOpen] = useState({
+        add: false,
+        edit: false,
+    });
 
     const { data, isLoading, isError } = useProductions({
         options: {
@@ -107,19 +42,17 @@ const ProductionPage = () => {
                 setError(err);
             },
             select: (data: ProductionDataApiInterface) => {
-                const mappedData: ProductionInterface[] = data.data.map(
+                const mappedData = data.data.flatMap(
                     (production: ProductionApiInterface) => {
-                        return {
+                        return production.productItems.map((item) => ({
                             key: production._id,
-                            productionDate: production.productionDate,
+                            productionDate: moment(
+                                production.productionDate
+                            ).format("YYYY-MM-DD HH:mm:ss"),
                             note: production.note,
-                            productItems: [...production.productItems],
-                            total: production.productItems.reduce(
-                                (accumulator, product) =>
-                                    accumulator + +product.qty,
-                                0
-                            ),
-                        };
+                            ...item,
+                            product: item.product.name,
+                        }));
                     }
                 );
                 return { data: [...mappedData] };
@@ -130,7 +63,33 @@ const ProductionPage = () => {
         },
     });
 
-    console.log(data, "<<<<");
+    const {
+        data: dataProduct,
+        isLoading: isLoadingProduct,
+        isError: isErrorProduct,
+    } = useProducts({
+        options: {
+            onError: (err: CustomError) => {
+                setError(err);
+            },
+            select: (data: ProductDataApiInterface) => {
+                const mappedData = data.data.map(
+                    (product: ProductApiInterface) => {
+                        return {
+                            label: product.name,
+                            value: product._id,
+                        };
+                    }
+                );
+                return { data: mappedData };
+            },
+        },
+        query: {
+            search: "asd",
+        },
+    });
+
+    console.log(data?.data, "<<<<");
 
     const productionData: ProductionDataInterface =
         data as unknown as ProductionDataInterface;
@@ -182,15 +141,22 @@ const ProductionPage = () => {
         },
     });
 
-    const columns = useProductionColumn();
+    const loadingAll =
+        isLoading ||
+        isLoadingDeleteProduction ||
+        isLoadingCreateProduction ||
+        isLoadingUpdateProduction;
     if (
         isError ||
+        isErrorProduct ||
         isErrorCreateProduction ||
         isErrorDeleteProduction ||
         isErrorUpdateProduction
     ) {
         openNotificationWithIcon("error", userError);
     }
+    const columns = useProductionColumn(data?.data || []);
+
     return (
         <>
             {contextNotif}
@@ -199,19 +165,49 @@ const ProductionPage = () => {
                 size="large"
                 style={{ display: "flex" }}
             >
-                <Skeleton
-                    loading={
-                        isLoading ||
-                        isLoadingDeleteProduction ||
-                        isLoadingCreateProduction ||
-                        isLoadingUpdateProduction
-                    }
-                >
+                <Skeleton loading={loadingAll}>
                     <h1>Production Page</h1>
-                    <InvDrawer />
-                    <InvTable data={dataColDum} columns={columns} />
+                    <Button
+                        type="primary"
+                        onClick={() =>
+                            setOpen((prev) => ({ ...prev, add: true }))
+                        }
+                        icon={<PlusOutlined />}
+                    >
+                        {"Add New Production"}
+                    </Button>
+
+                    {!isLoading && columns && (
+                        <Table
+                            columns={columns}
+                            dataSource={data?.data}
+                            // onChange={onChange}
+                        />
+                    )}
                 </Skeleton>
             </Space>
+            <Drawer
+                title={"Add New Product"}
+                width={720}
+                onClose={() => setOpen((prev) => ({ ...prev, open: false }))}
+                open={open.add}
+                bodyStyle={{ paddingBottom: 80 }}
+            >
+                <ProductionForm
+                    onSubmit={createProduction}
+                    isLoading={isLoadingProduct}
+                    data={dataProduct}
+                />
+            </Drawer>
+            <Drawer
+                title={"Edit Product"}
+                width={720}
+                onClose={() => setOpen((prev) => ({ ...prev, edit: false }))}
+                open={open.edit}
+                bodyStyle={{ paddingBottom: 80 }}
+            >
+                <ProductionForm onSubmit={updateProduction} />
+            </Drawer>
         </>
     );
 };

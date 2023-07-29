@@ -7,7 +7,13 @@ import { ProductionInterface } from "./production.interface";
 import { AnyObject } from "antd/es/_util/type";
 import { Button, Popconfirm, Space } from "antd";
 
-const useProductionColumn = (convertedData: any[]) => {
+const useProductionColumn = (
+    convertedData: any[],
+    deleteProduction,
+    setTableRowId,
+    isLoadingDeleteProduction,
+    setOpen
+) => {
     const keyCounts = new Map();
     if (convertedData.length === 0) return;
     convertedData.forEach((data) => {
@@ -86,41 +92,57 @@ const useProductionColumn = (convertedData: any[]) => {
             title: "Action",
             dataIndex: "Action",
             width: "20%",
-            render: (_, record: AnyObject) => (
-                <>
-                    <Space>
-                        {
-                            <Button type="primary" loading={false}>
-                                <a>Edit</a>
-                            </Button>
-                        }
-                        <Popconfirm
-                            key={record.key as string}
-                            title="Delete the task"
-                            description="Are you sure to delete this task?"
-                            cancelText="No"
-                            onConfirm={() => {
-                                // handleDelete(record.key as string);
-                                // if (!record.newData) {
-                                //     deleteUser();
-                                // }
-                            }}
-                        >
-                            <Button
-                                type="primary"
-                                danger
-                                onClick={
-                                    () => console.log("click")
-                                    // setTableRowId(record.key as string)
-                                }
-                                // loading={isLoadingDeleteUser}
+            onCell: calculateOnCell,
+            render: (_, record: AnyObject, index) => {
+                const actionComp = (
+                    <>
+                        <Space>
+                            {
+                                <Button
+                                    type="primary"
+                                    loading={false}
+                                    onClick={() =>
+                                        setOpen((prev) => ({
+                                            ...prev,
+                                            edit: true,
+                                        }))
+                                    }
+                                >
+                                    <a>Edit</a>
+                                </Button>
+                            }
+                            <Popconfirm
+                                key={record.key as string}
+                                title="Delete the task"
+                                description="Are you sure to delete this task?"
+                                cancelText="No"
+                                onConfirm={deleteProduction}
                             >
-                                <a>Delete</a>
-                            </Button>
-                        </Popconfirm>
-                    </Space>
-                </>
-            ),
+                                <Button
+                                    type="primary"
+                                    danger
+                                    onClick={() =>
+                                        setTableRowId(record.key as string)
+                                    }
+                                    loading={isLoadingDeleteProduction}
+                                >
+                                    <a>Delete</a>
+                                </Button>
+                            </Popconfirm>
+                        </Space>
+                    </>
+                );
+                const key = record.key;
+                if (index === 0) {
+                    const count = keyCounts.get(key) || 1;
+                    return { children: actionComp, props: { rowSpan: count } };
+                }
+                if (convertedData[index - 1].key !== key) {
+                    const count = keyCounts.get(key) || 1;
+                    return { children: actionComp, props: { rowSpan: count } };
+                }
+                return null;
+            },
         },
     ];
 

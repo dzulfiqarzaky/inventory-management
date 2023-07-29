@@ -1,20 +1,53 @@
 import { Col, DatePicker, Form, Input, Row, Button, Space, Select } from "antd";
 
-type Props = {};
+type Props = {
+    data: any;
+    onSubmit(values: any, onSubmit: any): void;
+    isLoading: boolean | undefined;
+};
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
+import { useState } from "react";
+import moment from "moment";
 
-const onFinish = (values: any, onSubmit) => {
+const onFinish = (values: any, data, onSubmit) => {
     console.log("Received values of form:", values);
-    onSubmit(values);
+    console.log("Received values of form:", data);
+    const newValues = {
+        productionDate: moment(values.dateTime.$d).format(
+            "YYYY-MM-DDTHH:mm:ss.SSSZ"
+        ),
+        note: values.description,
+        productItems: values.product.map((prod) => ({
+            product: prod.product,
+            uom: data.find((el) => el.value === prod.product)?.uom,
+            qty: prod.amount,
+        })),
+    };
+    console.log(newValues, 1112);
+    onSubmit(newValues);
 };
 
 const ProductionForm = (props: Props) => {
-    console.log(props, "<<<< props");
+    const initialUoms = Array.from(
+        { length: props?.data?.data.length },
+        () => "kg"
+    );
+    const [uoms, setUoms] = useState<string[]>(initialUoms);
+
+    const handleProductChange = (index: number, value: any) => {
+        const updatedUoms = [...uoms];
+        updatedUoms[index] = props?.data?.data?.find(
+            (el) => el.value === value
+        )?.uom;
+        setUoms(updatedUoms);
+    };
     return (
         <Form
             layout="vertical"
             name="dynamic_form_nest_item"
-            onFinish={(values) => onFinish(values, props.onSubmit)}
+            onFinish={(values) =>
+                onFinish(values, props.data.data, props.onSubmit)
+            }
             style={{ maxWidth: 800 }}
             autoComplete="off"
         >
@@ -95,6 +128,9 @@ const ProductionForm = (props: Props) => {
                                         placeholder={"Product"}
                                         loading={props.isLoading}
                                         style={{ width: 180 }}
+                                        onChange={(value) =>
+                                            handleProductChange(key, value)
+                                        }
                                     >
                                         {props?.data?.data?.map((item) => (
                                             <Option
@@ -110,14 +146,13 @@ const ProductionForm = (props: Props) => {
                                     {...restField}
                                     label="uom"
                                     name={[name, "uom"]}
-                                    rules={[
-                                        {
-                                            required: true,
-                                            message: "Missing Uom",
-                                        },
-                                    ]}
+                                    valuePropName="uom"
                                 >
-                                    <Input placeholder="kg, ton, etc" />
+                                    <Input
+                                        disabled
+                                        placeholder="kg, ton, etc"
+                                        value={uoms[key]}
+                                    />
                                 </Form.Item>
                                 <MinusCircleOutlined
                                     onClick={() => remove(name)}

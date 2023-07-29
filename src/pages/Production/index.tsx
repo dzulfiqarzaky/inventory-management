@@ -14,7 +14,6 @@ import {
     ProductionApiInterface,
     ProductionDataApiInterface,
     ProductionDataInterface,
-    ProductionInterface,
 } from "./production.interface";
 import { queryClient } from "../../main";
 import ProductionForm from "./ProductionForm";
@@ -24,7 +23,6 @@ import { useProducts } from "../../hooks/product/useProduct";
 import {
     ProductApiInterface,
     ProductDataApiInterface,
-    ProductInterface,
 } from "../Product/product.interface";
 
 const ProductionPage = () => {
@@ -42,6 +40,7 @@ const ProductionPage = () => {
                 setError(err);
             },
             select: (data: ProductionDataApiInterface) => {
+                console.log(data, 9123);
                 const mappedData = data.data.flatMap(
                     (production: ProductionApiInterface) => {
                         return production.productItems.map((item) => ({
@@ -78,6 +77,7 @@ const ProductionPage = () => {
                         return {
                             label: product.name,
                             value: product._id,
+                            uom: product.unit,
                         };
                     }
                 );
@@ -89,7 +89,7 @@ const ProductionPage = () => {
         },
     });
 
-    console.log(data?.data, "<<<<");
+    console.log(open, "<<<<");
 
     const productionData: ProductionDataInterface =
         data as unknown as ProductionDataInterface;
@@ -155,7 +155,13 @@ const ProductionPage = () => {
     ) {
         openNotificationWithIcon("error", userError);
     }
-    const columns = useProductionColumn(data?.data || []);
+    const columns = useProductionColumn(
+        data?.data || [],
+        deleteProduction,
+        setTableRowId,
+        isLoadingDeleteProduction,
+        setOpen
+    );
 
     return (
         <>
@@ -189,7 +195,7 @@ const ProductionPage = () => {
             <Drawer
                 title={"Add New Product"}
                 width={720}
-                onClose={() => setOpen((prev) => ({ ...prev, open: false }))}
+                onClose={() => setOpen((prev) => ({ ...prev, add: false }))}
                 open={open.add}
                 bodyStyle={{ paddingBottom: 80 }}
             >
@@ -206,7 +212,11 @@ const ProductionPage = () => {
                 open={open.edit}
                 bodyStyle={{ paddingBottom: 80 }}
             >
-                <ProductionForm onSubmit={updateProduction} />
+                <ProductionForm
+                    isLoading={isLoadingProduct}
+                    data={dataProduct}
+                    onSubmit={updateProduction}
+                />
             </Drawer>
         </>
     );

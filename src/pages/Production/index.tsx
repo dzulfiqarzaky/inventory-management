@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { Button, Drawer, Skeleton, Space, Table } from "antd";
+import { Button, Drawer, Skeleton, Space, Table, TableProps } from "antd";
 import {
     useCreateProduction,
     useDeleteProduction,
@@ -10,29 +11,31 @@ import { CustomError } from "../Login";
 import { useState } from "react";
 import useProductionColumn from "./useProductionColumn";
 import InvNotif from "../../components/InvNotif";
-import {
-    ProductionApiInterface,
-    ProductionDataApiInterface,
-    ProductionDataInterface,
-} from "./production.interface";
 import { queryClient } from "../../main";
 import ProductionForm from "./ProductionForm";
 import moment from "moment";
 import { PlusOutlined } from "@ant-design/icons";
 import { useProducts } from "../../hooks/product/useProduct";
+import { ProductDataApiInterface } from "../Product/product.interface";
 import {
-    ProductApiInterface,
-    ProductDataApiInterface,
-} from "../Product/product.interface";
+    ProductInitialData,
+    ProductMapped,
+    ProductsDataApiResponse,
+    ProductsList,
+    ProductsListType,
+} from "./production.interface";
 
 const ProductionPage = () => {
     const { openNotificationWithIcon, contextNotif } = InvNotif();
     const [userError, setError] = useState<CustomError | null>(null);
     const [tableRowId, setTableRowId] = useState<string>("");
     const [openCreate, setOpenCreate] = useState(false);
-    const [openEdit, setOpenEdit] = useState({
+    const [openEdit, setOpenEdit] = useState<{
+        edit: boolean;
+        data: null | ProductInitialData;
+    }>({
         edit: false,
-        data: {},
+        data: null,
     });
 
     const { data, isLoading, isError } = useProductions({
@@ -40,19 +43,21 @@ const ProductionPage = () => {
             onError: (err: CustomError) => {
                 setError(err);
             },
-            select: (data: ProductionDataApiInterface) => {
-                const initialData = data.data.map((production) => ({
-                    id: production._id,
-                    productionDate: moment(production.productionDate),
-                    note: production.note,
-                    products: production.productItems.map((prodItem) => ({
-                        product: prodItem.product._id,
-                        qty: prodItem.qty,
-                        uom: prodItem.uom,
-                    })),
-                }));
-                const mappedData = data.data.flatMap(
-                    (production: ProductionApiInterface) => {
+            select: (data: ProductsDataApiResponse) => {
+                const initialData: ProductInitialData[] = data.data.map(
+                    (production) => ({
+                        id: production._id,
+                        productionDate: moment(production.productionDate),
+                        note: production.note,
+                        products: production.productItems.map((prodItem) => ({
+                            product: prodItem.product._id,
+                            qty: prodItem.qty,
+                            uom: prodItem.uom,
+                        })),
+                    })
+                );
+                const mappedData: ProductMapped[] = data.data.flatMap(
+                    (production) => {
                         return production.productItems.map((item) => ({
                             key: production._id,
                             productionDate: moment(
@@ -82,15 +87,13 @@ const ProductionPage = () => {
                 setError(err);
             },
             select: (data: ProductDataApiInterface) => {
-                const mappedData = data.data.map(
-                    (product: ProductApiInterface) => {
-                        return {
-                            label: product.name,
-                            value: product._id,
-                            uom: product.unit,
-                        };
-                    }
-                );
+                const mappedData: ProductsList[] = data.data.map((product) => {
+                    return {
+                        label: product.name,
+                        value: product._id,
+                        uom: product.unit,
+                    };
+                });
                 return { data: mappedData };
             },
         },
@@ -98,9 +101,6 @@ const ProductionPage = () => {
             search: "asd",
         },
     });
-
-    const productionData: ProductionDataInterface =
-        data?.data as unknown as ProductionDataInterface;
 
     const {
         mutate: createProduction,
@@ -151,6 +151,9 @@ const ProductionPage = () => {
         },
     });
 
+    const dataSource: ProductMapped[] = data?.data;
+    const initialProductData: ProductInitialData[] = data?.initialData;
+
     const loadingAll =
         isLoading ||
         isLoadingDeleteProduction ||
@@ -166,14 +169,23 @@ const ProductionPage = () => {
         openNotificationWithIcon("error", userError);
     }
 
-    const columns = useProductionColumn(
-        productionData || [],
+    const columns = useProductionColumn({
+        dataSource,
         deleteProduction,
         setTableRowId,
         isLoadingDeleteProduction,
         setOpenEdit,
-        data?.initialData || []
-    );
+        initialProductData,
+    });
+
+    const onChange: TableProps<ProductMapped>["onChange"] = (
+        newPagination,
+        filters,
+        sorter,
+        extra
+    ) => {
+        console.log("params", newPagination, filters, sorter, extra);
+    };
 
     return (
         <>
@@ -192,12 +204,11 @@ const ProductionPage = () => {
                     >
                         {"Add New Production"}
                     </Button>
-
                     {!isLoading && columns && (
                         <Table
                             columns={columns}
-                            dataSource={productionData}
-                            // onChange={onChange}
+                            dataSource={dataSource}
+                            onChange={onChange}
                         />
                     )}
                 </Skeleton>
@@ -210,11 +221,13 @@ const ProductionPage = () => {
                 open={openCreate}
                 bodyStyle={{ paddingBottom: 80 }}
             >
-                <ProductionForm
-                    onSubmit={createProduction}
-                    isLoading={isLoadingProduct}
-                    product={dataProduct}
-                />
+                {dataProduct && (
+                    <ProductionForm
+                        onSubmit={createProduction}
+                        isLoading={isLoadingProduct}
+                        product={dataProduct as never as ProductsListType}
+                    />
+                )}
             </Drawer>
             <Drawer
                 title={"Edit Product"}
@@ -226,12 +239,14 @@ const ProductionPage = () => {
                 open={openEdit.edit}
                 bodyStyle={{ paddingBottom: 80 }}
             >
-                <ProductionForm
-                    isLoading={isLoadingProduct}
-                    product={dataProduct}
-                    initialVal={openEdit.data}
-                    onSubmit={updateProduction}
-                />
+                {dataProduct && openEdit.data && (
+                    <ProductionForm
+                        isLoading={isLoadingProduct}
+                        product={dataProduct as never as ProductsListType}
+                        initialVal={openEdit.data}
+                        onSubmit={updateProduction}
+                    />
+                )}
             </Drawer>
         </>
     );

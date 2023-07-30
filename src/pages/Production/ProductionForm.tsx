@@ -1,71 +1,79 @@
 import { Col, DatePicker, Form, Input, Row, Button, Space, Select } from "antd";
-
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import { useState } from "react";
 import moment from "moment";
+import {
+    ProductInitial,
+    ProductInitialData,
+    ProductsList,
+    PropsProductForm,
+    Submit,
+} from "./production.interface";
 
-type InitialValue = {
-    productionDate: string;
-    note: string;
-    products: {
-        product: string;
-        qty: string;
-        uom: string;
-    }[];
-};
+// isLoading={isLoadingProduct}
+//                     product={dataProduct}
+//                     initialVal={openEdit}
+//                     onSubmit={updateProduction}
 
-type Props = {
-    product: { data: { label: string; value: string; uom: string }[] };
-    initialVal?: InitialValue; // Make `initialVal` optional
-    onSubmit(values: any, onSubmit: any): void;
-    isLoading?: boolean;
-};
-
-const onFinish = (values: any, data, onSubmit) => {
+const onFinish = (
+    values: ProductInitialData,
+    data: ProductsList[],
+    onSubmit: Submit
+) => {
     console.log("Received values of form:", values);
-    console.log("Received values of form:", data);
+
     const newValues = {
-        productionDate: moment(values.productionDate.$d).format(
+        productionDate: moment(values.productionDate).format(
             "YYYY-MM-DDTHH:mm:ss.SSSZ"
         ),
         note: values.note,
-        productItems: values.product.map((prod) => ({
-            product: prod.product,
-            uom: data.find((el) => el.value === prod.product)?.uom,
-            qty: prod.qty,
-        })),
+        productItems: values.products.map((prod: ProductInitial) => {
+            const foundUom = data?.find((el) => el.value === prod.product)?.uom;
+            return {
+                product: prod.product,
+                uom: foundUom || "", // Provide a default value for uom
+                qty: prod.qty,
+            };
+        }),
     };
+
     onSubmit(newValues);
 };
 
-const ProductionForm = (props: Props) => {
+const ProductionForm = ({
+    isLoading,
+    product,
+    initialVal,
+    onSubmit,
+}: PropsProductForm) => {
     const { Option } = Select;
     const initialUoms = Array.from(
-        { length: props?.product?.data.length },
+        { length: product?.data?.length },
         () => "kg"
     );
     const [uoms, setUoms] = useState<string[]>(initialUoms);
     const [addNew, setAddnew] = useState<number | null>(null);
-    const handleProductChange = (index: number, value: any) => {
+
+    const handleProductChange = (index: number, value: string) => {
         const updatedUoms = [...uoms];
-        updatedUoms[index] = props?.product?.data?.find(
-            (el) => el.value === value
-        )?.uom;
+        updatedUoms[index] =
+            product?.data?.find((el) => el.value === value)?.uom || "";
+
         setUoms(updatedUoms);
     };
 
-    const initialValues = props?.initialVal || {
+    const initialValues = initialVal || {
         productionDate: "",
         note: "",
         products: [],
     };
-    console.log(initialValues, 998);
+
     return (
         <Form
             layout="vertical"
             name="dynamic_form_nest_item"
             onFinish={(values) =>
-                onFinish(values, props.product.data, props.onSubmit)
+                onFinish(values as ProductInitialData, product?.data, onSubmit)
             }
             initialValues={initialValues}
             style={{ maxWidth: 800 }}
@@ -111,10 +119,7 @@ const ProductionForm = (props: Props) => {
                     </Form.Item>
                 </Col>
             </Row>
-            <Form.List
-                name="product"
-                initialValue={props?.initialVal?.products}
-            >
+            <Form.List name="products" initialValue={initialVal?.products}>
                 {(fields, { add, remove }) => (
                     <>
                         {fields.map(({ key, name, ...restField }) => (
@@ -149,13 +154,16 @@ const ProductionForm = (props: Props) => {
                                 >
                                     <Select
                                         placeholder={"Product"}
-                                        loading={props.isLoading}
+                                        loading={isLoading}
                                         style={{ width: 180 }}
                                         onChange={(value) =>
-                                            handleProductChange(key, value)
+                                            handleProductChange(
+                                                key,
+                                                value as string
+                                            )
                                         }
                                     >
-                                        {props?.product?.data?.map((item) => (
+                                        {product?.data?.map((item) => (
                                             <Option
                                                 key={item.value}
                                                 value={item.value}
@@ -177,11 +185,9 @@ const ProductionForm = (props: Props) => {
                                         value={
                                             addNew === key
                                                 ? uoms[key]
-                                                : !props?.initialVal
+                                                : !initialVal
                                                 ? uoms[key]
-                                                : props?.initialVal?.products[
-                                                      key
-                                                  ].uom
+                                                : initialVal?.products[key].uom
                                         }
                                     />
                                 </Form.Item>

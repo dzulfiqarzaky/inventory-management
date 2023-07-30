@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { useMutation, useQuery } from "@tanstack/react-query";
 import api from "../../lib/client";
-import { ProductionBaseInterface } from "../../pages/Production/production.interface";
 
 export interface ProductionHooksApiInterface {
     options?: object;
     query?: {
         search?: string;
+        page?: number;
+        limit?: number;
     };
 }
 
@@ -55,7 +56,7 @@ const useProduction = ({
 
 const useCreateProduction = ({ options = {} }: ProductionHooksApiInterface) => {
     return useMutation(
-        (newData: ProductionBaseInterface) =>
+        (newData) =>
             api("/product/production", {
                 method: "POST",
                 data: newData,
@@ -69,7 +70,7 @@ const useUpdateProduction = ({
     options = {},
 }: ProductionApiWithIdInterface) => {
     return useMutation(
-        (updates: Partial<ProductionBaseInterface>) =>
+        (updates) =>
             api(`/product/production/${production_id}`, {
                 method: "PUT",
                 data: updates,

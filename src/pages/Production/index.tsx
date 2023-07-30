@@ -24,12 +24,14 @@ import {
     ProductsList,
     ProductsListType,
 } from "./production.interface";
+import Search from "antd/es/input/Search";
 
 const ProductionPage = () => {
     const { openNotificationWithIcon, contextNotif } = InvNotif();
     const [userError, setError] = useState<CustomError | null>(null);
     const [tableRowId, setTableRowId] = useState<string>("");
     const [openCreate, setOpenCreate] = useState(false);
+    const [search, setSearch] = useState("");
     const [openEdit, setOpenEdit] = useState<{
         edit: boolean;
         data: null | ProductInitialData;
@@ -73,7 +75,7 @@ const ProductionPage = () => {
             },
         },
         query: {
-            search: "asd",
+            search,
         },
     });
 
@@ -151,9 +153,22 @@ const ProductionPage = () => {
         },
     });
 
-    const dataSource: ProductMapped[] = data?.data;
-    const initialProductData: ProductInitialData[] = data?.initialData;
-
+    const dataSource: ProductMapped[] = isLoading ? [] : data?.data;
+    const initialProductData: ProductInitialData[] = isLoading
+        ? []
+        : data?.initialData;
+    const pageData = [];
+    let count = 1;
+    dataSource.forEach((prod, index) => {
+        if (dataSource[index]._id === prod._id) {
+            pageData.push(prod);
+        } else if (dataSource[index]._id !== prod._id) {
+            pageData.push(prod);
+            if (pageData.length <= 12 + 10 * count) {
+                count++;
+            }
+        }
+    });
     const loadingAll =
         isLoading ||
         isLoadingDeleteProduction ||
@@ -187,6 +202,10 @@ const ProductionPage = () => {
         console.log("params", newPagination, filters, sorter, extra);
     };
 
+    const onSearch = (val: string) => {
+        setSearch(val);
+    };
+
     return (
         <>
             {contextNotif}
@@ -204,6 +223,11 @@ const ProductionPage = () => {
                     >
                         {"Add New Production"}
                     </Button>
+                    <Search
+                        placeholder="input search text"
+                        onSearch={onSearch}
+                        enterButton
+                    />
                     {!isLoading && columns && (
                         <Table
                             columns={columns}

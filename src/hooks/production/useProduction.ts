@@ -26,7 +26,7 @@ const fetchProductions = async ({ query = {} }: ProductionHooksApiInterface) =>
             sortOrder: "desc",
             ...query,
         },
-    }).then((res) => res.data);
+    }).then((res) => res.data.data);
 
 const useProductions = ({
     query = {},

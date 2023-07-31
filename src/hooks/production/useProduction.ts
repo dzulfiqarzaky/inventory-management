@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { useMutation, useQuery } from "@tanstack/react-query";
 import api from "../../lib/client";
+import { ProductsDataApiResponse } from "../../pages/Production/production.interface";
 
 export interface ProductionHooksApiInterface {
     options?: object;

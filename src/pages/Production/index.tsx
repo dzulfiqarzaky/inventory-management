@@ -121,7 +121,7 @@ const ProductionPage = () => {
                         currentGroup.push(item);
                     } else if (mappedData[index + 1].key !== item.key) {
                         currentGroup.push(item);
-                        if (currentGroup.length >= 9) {
+                        if (currentGroup.length >= 7) {
                             groupedData[count] = [...currentGroup];
                             currentGroup = [];
                             count++;
@@ -215,7 +215,7 @@ const ProductionPage = () => {
 
     const initialProductData: ProductInitialData[] = isLoading
         ? []
-        : data?.initialData;
+        : (data?.initialData as unknown as ProductInitialData[]);
 
     const dataSourceGrouped = isLoading ? {} : data?.groupedData;
 

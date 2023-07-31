@@ -1,6 +1,16 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { Button, Drawer, Skeleton, Space, Table, TableProps } from "antd";
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+
+import {
+    Button,
+    Col,
+    Drawer,
+    Pagination,
+    Row,
+    Skeleton,
+    Space,
+    Table,
+} from "antd";
 import {
     useCreateProduction,
     useDeleteProduction,
@@ -8,7 +18,7 @@ import {
     useUpdateProduction,
 } from "../../hooks/production/useProduction";
 import { CustomError } from "../Login";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useProductionColumn from "./useProductionColumn";
 import InvNotif from "../../components/InvNotif";
 import { queryClient } from "../../main";
@@ -31,6 +41,17 @@ const ProductionPage = () => {
     const [userError, setError] = useState<CustomError | null>(null);
     const [tableRowId, setTableRowId] = useState<string>("");
     const [openCreate, setOpenCreate] = useState(false);
+    const [currentPage, setCurrentPage] = useState<{
+        current: number | null;
+        pageSize: number;
+        totalPage: number;
+    }>({
+        current: null,
+        pageSize: 15,
+        totalPage: 2,
+    });
+    const [tableKey, setTableKey] = useState(0);
+
     const [search, setSearch] = useState("");
     const [openEdit, setOpenEdit] = useState<{
         edit: boolean;
@@ -44,6 +65,18 @@ const ProductionPage = () => {
         options: {
             onError: (err: CustomError) => {
                 setError(err);
+            },
+            onSuccess: (data: {
+                data: ProductMapped[];
+                initialData: ProductInitialData[];
+                groupedData: Record<number, ProductMapped[]>;
+            }) => {
+                const groupedData = data.groupedData;
+                setCurrentPage({
+                    current: 1,
+                    pageSize: groupedData[1]?.length,
+                    totalPage: Object.keys(groupedData)?.length || 0,
+                });
             },
             select: (data: ProductsDataApiResponse) => {
                 const initialData: ProductInitialData[] = data.data.map(
@@ -60,18 +93,43 @@ const ProductionPage = () => {
                 );
                 const mappedData: ProductMapped[] = data.data.flatMap(
                     (production) => {
-                        return production.productItems.map((item) => ({
+                        return production.productItems.map((item, index) => ({
+                            index: index,
                             key: production._id,
                             productionDate: moment(
                                 production.productionDate
                             ).format("YYYY-MM-DD HH:mm:ss"),
                             note: production.note,
                             ...item,
-                            product: item.product.name,
+                            product:
+                                item.product.SKU + " - " + item.product.name,
                         }));
                     }
                 );
-                return { data: [...mappedData], initialData };
+                const groupedData: Record<number, ProductMapped[]> = {};
+                let currentGroup: ProductMapped[] = [];
+                let count = 1;
+                for (let index = 0; index < mappedData.length; index++) {
+                    const item = mappedData[index];
+                    if (mappedData.length - 1 === index) {
+                        currentGroup.push(item);
+                        groupedData[count] = [...currentGroup];
+                        currentGroup = [];
+                        break;
+                    }
+                    if (mappedData[index + 1].key === item.key) {
+                        currentGroup.push(item);
+                    } else if (mappedData[index + 1].key !== item.key) {
+                        currentGroup.push(item);
+                        if (currentGroup.length >= 9) {
+                            groupedData[count] = [...currentGroup];
+                            currentGroup = [];
+                            count++;
+                        }
+                    }
+                }
+
+                return { data: [...mappedData], initialData, groupedData };
             },
         },
         query: {
@@ -91,7 +149,7 @@ const ProductionPage = () => {
             select: (data: ProductDataApiInterface) => {
                 const mappedData: ProductsList[] = data.data.map((product) => {
                     return {
-                        label: product.name,
+                        label: product.SKU + " - " + product.name,
                         value: product._id,
                         uom: product.unit,
                     };
@@ -153,22 +211,14 @@ const ProductionPage = () => {
         },
     });
 
-    const dataSource: ProductMapped[] = isLoading ? [] : data?.data;
+    const dataSource: ProductMapped[] = data?.data;
+
     const initialProductData: ProductInitialData[] = isLoading
         ? []
         : data?.initialData;
-    const pageData = [];
-    let count = 1;
-    dataSource.forEach((prod, index) => {
-        if (dataSource[index]._id === prod._id) {
-            pageData.push(prod);
-        } else if (dataSource[index]._id !== prod._id) {
-            pageData.push(prod);
-            if (pageData.length <= 12 + 10 * count) {
-                count++;
-            }
-        }
-    });
+
+    const dataSourceGrouped = isLoading ? {} : data?.groupedData;
+
     const loadingAll =
         isLoading ||
         isLoadingDeleteProduction ||
@@ -185,7 +235,7 @@ const ProductionPage = () => {
     }
 
     const columns = useProductionColumn({
-        dataSource,
+        dataSource: dataSourceGrouped[currentPage?.current as number] || [],
         deleteProduction,
         setTableRowId,
         isLoadingDeleteProduction,
@@ -193,13 +243,19 @@ const ProductionPage = () => {
         initialProductData,
     });
 
-    const onChange: TableProps<ProductMapped>["onChange"] = (
-        newPagination,
-        filters,
-        sorter,
-        extra
-    ) => {
-        console.log("params", newPagination, filters, sorter, extra);
+    useEffect(() => {
+        setTableKey((prevKey) => prevKey + 1);
+    }, [currentPage.pageSize, search]);
+
+    const onChange = (current: number) => {
+        setCurrentPage({
+            current: current,
+            pageSize: dataSourceGrouped[current]?.length || 0,
+            totalPage:
+                Object.keys(
+                    dataSourceGrouped as Record<number, ProductMapped[]>
+                )?.length || 0,
+        });
     };
 
     const onSearch = (val: string) => {
@@ -209,34 +265,53 @@ const ProductionPage = () => {
     return (
         <>
             {contextNotif}
-            <Space
-                direction="vertical"
-                size="large"
-                style={{ display: "flex" }}
-            >
-                <Skeleton loading={loadingAll}>
+            <Skeleton loading={loadingAll}>
+                <Space
+                    direction="vertical"
+                    size="large"
+                    style={{ display: "flex" }}
+                >
                     <h1>Production Page</h1>
-                    <Button
-                        type="primary"
-                        onClick={() => setOpenCreate(true)}
-                        icon={<PlusOutlined />}
-                    >
-                        {"Add New Production"}
-                    </Button>
-                    <Search
-                        placeholder="input search text"
-                        onSearch={onSearch}
-                        enterButton
-                    />
-                    {!isLoading && columns && (
-                        <Table
-                            columns={columns}
-                            dataSource={dataSource}
-                            onChange={onChange}
-                        />
+
+                    <Row>
+                        <Col span={18}>
+                            <Button
+                                type="primary"
+                                onClick={() => setOpenCreate(true)}
+                                icon={<PlusOutlined />}
+                            >
+                                {"Add New Production"}
+                            </Button>
+                        </Col>
+                        <Col span={6}>
+                            <Search
+                                placeholder="input search text"
+                                onSearch={onSearch}
+                                enterButton
+                            />
+                        </Col>
+                    </Row>
+                    {!isLoading && columns && currentPage.current && (
+                        <>
+                            <Table
+                                key={tableKey}
+                                columns={columns}
+                                dataSource={
+                                    dataSourceGrouped[currentPage.current]
+                                }
+                                pagination={false}
+                                loading={isLoading}
+                            />
+                            <Pagination
+                                simple
+                                defaultCurrent={currentPage.current}
+                                total={dataSource.length}
+                                onChange={onChange}
+                            />
+                        </>
                     )}
-                </Skeleton>
-            </Space>
+                </Space>
+            </Skeleton>
             <Drawer
                 title={"Add New Product"}
                 width={720}

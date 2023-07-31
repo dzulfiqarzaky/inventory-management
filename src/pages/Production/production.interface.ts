@@ -11,6 +11,7 @@ export type ProductApiItem = {
 export type ProductApi = {
     _id: string;
     name: string;
+    SKU: string;
 };
 
 export type ProductApiResponse = {
